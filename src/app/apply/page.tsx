@@ -313,13 +313,20 @@ export default function ApplyPage() {
 
   const onSubmit = () => {
     if (submitDisabled || isPending) return;
-    startTransition(async () => {
-      const result = await submitApplication(submissionPayload);
-      if (result.success) {
-        router.push("/success");
-      } else {
-        toast.error(result.error);
-      }
+    startTransition(() => {
+      void (async () => {
+        try {
+          const result = await submitApplication(submissionPayload);
+          if (result.success) {
+            router.push("/success");
+          } else {
+            toast.error(result.error);
+          }
+        } catch (error) {
+          console.error("[apply] unexpected submit failure", error);
+          toast.error("No se pudo enviar. Inténtalo de nuevo.");
+        }
+      })();
     });
   };
 
