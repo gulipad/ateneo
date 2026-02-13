@@ -33,12 +33,14 @@ export default function Page() {
                     right.
                   </p>
                   <div className="mt-8">
-                    <a
-                      href="/ascii"
-                      className="inline-flex h-11 items-center border border-white px-5 text-xs uppercase tracking-[0.18em] [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] transition-colors hover:bg-white hover:text-black"
-                    >
-                      Open ASCII Lab
-                    </a>
+                  <a
+                    href="/apply"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex h-11 items-center border border-white px-5 text-xs uppercase tracking-[0.18em] [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] transition-colors hover:bg-white hover:text-black"
+                  >
+                    Apply now
+                  </a>
                   </div>
                 </div>
               </div>
