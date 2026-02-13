@@ -4,8 +4,8 @@ export default function Page() {
   return (
     <main className="min-h-screen bg-black text-white">
       <div className="mx-auto w-full 2xl:max-w-[1440px] 2xl:border-x 2xl:border-white/20">
-        <header className="border-y border-white/20">
-          <nav className="flex h-16 items-center justify-between px-6 md:px-10">
+        <header className="h-16 border-y border-white/20">
+          <nav className="flex h-full items-center justify-between px-6 md:px-10">
             <p className="text-xs uppercase tracking-[0.22em] [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
               Ateneo
             </p>
@@ -20,8 +20,8 @@ export default function Page() {
         </header>
 
         <section className="w-full">
-          <div className="grid min-h-[calc(100vh-4rem)] grid-rows-[1fr_auto]">
-            <div className="grid h-full md:grid-cols-2">
+          <div className="grid h-[calc(100dvh-4rem)] grid-rows-[minmax(0,1fr)_auto]">
+            <div className="grid h-full min-h-0 md:grid-cols-2">
               <div className="flex h-full items-center border-b border-white/20 px-6 py-16 md:border-r md:border-b-0 md:px-10 md:py-20">
                 <div>
                   <h1 className="max-w-[18ch] text-5xl leading-[1.02] tracking-tight [font-family:Georgia,'Times_New_Roman',Times,serif] md:text-7xl">
@@ -42,12 +42,12 @@ export default function Page() {
                   </div>
                 </div>
               </div>
-              <div className="h-full min-h-[460px] border-b border-white/20 md:min-h-0">
+              <div className="h-full min-h-0 overflow-hidden md:min-h-0">
                 <HeroAteneoExport />
               </div>
             </div>
 
-            <div className="grid h-12 grid-cols-2 divide-x divide-white/20 border-t border-white/20 md:grid-cols-4">
+            <div className="grid h-12 grid-cols-2 divide-x divide-white/20 border-t border-b border-white/20 md:grid-cols-4">
               <div className="flex items-center px-4 text-[10px] uppercase tracking-[0.16em] text-white/70 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
                 Logo 01
               </div>
