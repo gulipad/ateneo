@@ -1,6 +1,6 @@
 "use client";
 
-import { useId, useMemo, useRef, useState } from "react";
+import { useEffect, useId, useMemo, useRef, useState } from "react";
 import { X } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -8,6 +8,7 @@ type InvestorsPillInputProps = {
   label: string;
   placeholder: string;
   name?: string;
+  onValuesChange?: (values: string[]) => void;
 };
 
 type InvestorPill = {
@@ -37,6 +38,7 @@ export function InvestorsPillInput({
   label,
   placeholder,
   name = "inversores",
+  onValuesChange,
 }: InvestorsPillInputProps) {
   const inputId = useId();
   const [draft, setDraft] = useState("");
@@ -45,6 +47,10 @@ export function InvestorsPillInput({
   const nextIdRef = useRef(1);
 
   const serialized = useMemo(() => items.map((item) => item.value).join(","), [items]);
+
+  useEffect(() => {
+    onValuesChange?.(items.map((item) => item.value));
+  }, [items, onValuesChange]);
 
   const removeTokenById = (id: string) => {
     setItems((prev) => prev.filter((item) => item.id !== id));

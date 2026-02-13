@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { useEffect, useMemo, useState } from "react";
 import { InvestorsPillInput } from "@/components/apply/investors-pill-input";
 import {
   Select,
@@ -7,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { cn } from "@/lib/utils";
 
 const OPTIONS_ROL = ["Fundador", "Co-fundador", "Otro"] as const;
 const OPTIONS_CAPITAL = [
@@ -34,7 +38,54 @@ const OPTIONS_DESCUBRIMIENTO = [
   "ChatGPT & otros",
 ] as const;
 
-function FieldLabel({ children, optional = false }: { children: string; optional?: boolean }) {
+const NAME_PATTERN = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' -]{2,100}$/;
+const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PHONE_PATTERN = /^\+?[0-9()\-\s]{7,20}$/;
+const LINKEDIN_PATTERN =
+  /^(?:[a-zA-Z0-9-]{3,100}|(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[a-zA-Z0-9_%\-]{3,100}\/?)$/i;
+const TWITTER_PATTERN = /^@?[A-Za-z0-9_]{1,15}$/;
+const WEBSITE_PATTERN =
+  /^(?:(?:https?:\/\/)?)(?:[a-z0-9](?:[a-z0-9-]{0,61}[a-z0-9])?\.)+[a-z]{2,}(?::\d{2,5})?(?:[/?#][^\s]*)?$/i;
+
+type FormValues = {
+  nombre: string;
+  apellidos: string;
+  email: string;
+  telefono: string;
+  linkedin: string;
+  twitter: string;
+  rol: string;
+  titulo: string;
+  web: string;
+  capital: string;
+  ingresos: string;
+  referido: string;
+  descubrimiento: string;
+};
+
+const INITIAL_VALUES: FormValues = {
+  nombre: "",
+  apellidos: "",
+  email: "",
+  telefono: "",
+  linkedin: "",
+  twitter: "",
+  rol: "",
+  titulo: "",
+  web: "",
+  capital: "",
+  ingresos: "",
+  referido: "",
+  descubrimiento: "",
+};
+
+function FieldLabel({
+  children,
+  optional = false,
+}: {
+  children: string;
+  optional?: boolean;
+}) {
   return (
     <span className="text-[11px] uppercase tracking-[0.12em] text-white/70 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
       {children}
@@ -43,7 +94,104 @@ function FieldLabel({ children, optional = false }: { children: string; optional
   );
 }
 
+function useDebouncedValue<T>(value: T, delayMs: number) {
+  const [debounced, setDebounced] = useState(value);
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      setDebounced(value);
+    }, delayMs);
+
+    return () => window.clearTimeout(timer);
+  }, [delayMs, value]);
+
+  return debounced;
+}
+
+function textInputClass(isInvalid: boolean) {
+  return cn(
+    "h-11 border bg-transparent px-3 text-sm text-white placeholder:text-white/35 outline-none transition-colors [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]",
+    isInvalid
+      ? "border-red-400/70 focus:border-red-300"
+      : "border-white/20 focus:border-white/50",
+  );
+}
+
 export default function ApplyPage() {
+  const [values, setValues] = useState<FormValues>(INITIAL_VALUES);
+  const [investors, setInvestors] = useState<string[]>([]);
+  const debouncedValues = useDebouncedValue(values, 1000);
+
+  const updateField = <K extends keyof FormValues>(
+    field: K,
+    value: FormValues[K],
+  ) => {
+    setValues((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const missingFields = useMemo(() => {
+    const missing: string[] = [];
+    if (!values.nombre.trim()) missing.push("Nombre");
+    if (!values.apellidos.trim()) missing.push("Apellidos");
+    if (!values.email.trim()) missing.push("Email");
+    if (!values.telefono.trim()) missing.push("Teléfono");
+    if (!values.linkedin.trim()) missing.push("LinkedIn URL");
+    if (!values.twitter.trim()) missing.push("Twitter @");
+    if (!values.rol.trim()) missing.push("Rol");
+    if (!values.titulo.trim()) missing.push("Título");
+    if (!values.web.trim()) missing.push("Web");
+    if (!values.capital.trim()) missing.push("Capital levantado");
+    if (!values.ingresos.trim()) missing.push("Rango de ingresos");
+    if (!investors.length) missing.push("Inversores (Web)");
+    return missing;
+  }, [investors.length, values]);
+
+  const invalidByField = useMemo(() => {
+    const settled = <K extends keyof FormValues>(field: K) =>
+      values[field] === debouncedValues[field] &&
+      values[field].trim().length > 0;
+
+    return {
+      nombre: settled("nombre") && !NAME_PATTERN.test(values.nombre.trim()),
+      apellidos:
+        settled("apellidos") && !NAME_PATTERN.test(values.apellidos.trim()),
+      email: settled("email") && !EMAIL_PATTERN.test(values.email.trim()),
+      telefono:
+        settled("telefono") && !PHONE_PATTERN.test(values.telefono.trim()),
+      linkedin:
+        settled("linkedin") && !LINKEDIN_PATTERN.test(values.linkedin.trim()),
+      twitter:
+        settled("twitter") && !TWITTER_PATTERN.test(values.twitter.trim()),
+      web: settled("web") && !WEBSITE_PATTERN.test(values.web.trim()),
+    };
+  }, [debouncedValues, values]);
+
+  const invalidFields = useMemo(() => {
+    const invalid: string[] = [];
+    if (invalidByField.nombre) invalid.push("Nombre");
+    if (invalidByField.apellidos) invalid.push("Apellidos");
+    if (invalidByField.email) invalid.push("Email");
+    if (invalidByField.telefono) invalid.push("Teléfono");
+    if (invalidByField.linkedin) invalid.push("LinkedIn URL");
+    if (invalidByField.twitter) invalid.push("Twitter @");
+    if (invalidByField.web) invalid.push("Web");
+    return invalid;
+  }, [invalidByField]);
+
+  const submitDisabled = missingFields.length > 0 || invalidFields.length > 0;
+  const submitTooltip = useMemo(() => {
+    if (!submitDisabled) return "";
+
+    const parts: string[] = [];
+    if (missingFields.length) parts.push(`Faltan: ${missingFields.join(", ")}`);
+    if (invalidFields.length)
+      parts.push(`Formato inválido: ${invalidFields.join(", ")}`);
+    return parts.join(" · ");
+  }, [invalidFields, missingFields, submitDisabled]);
+
+  const applicantName =
+    `${values.nombre} ${values.apellidos}`.trim() || "Nombre Apellidos";
+
   return (
     <main className="h-[100dvh] overflow-hidden bg-black text-white">
       <div className="mx-auto flex h-full w-full flex-col 2xl:max-w-[1440px] 2xl:border-x 2xl:border-white/20">
@@ -53,7 +201,10 @@ export default function ApplyPage() {
               Ateneo
             </p>
             <div className="hidden gap-8 text-xs uppercase tracking-[0.14em] [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] md:flex">
-              <Link href="/ascii" className="opacity-80 transition-opacity hover:opacity-100">
+              <Link
+                href="/ascii"
+                className="opacity-80 transition-opacity hover:opacity-100"
+              >
                 ASCII Lab
               </Link>
               <Link href="/apply" className="opacity-100">
@@ -77,14 +228,26 @@ export default function ApplyPage() {
                       <FieldLabel>Nombre</FieldLabel>
                       <input
                         type="text"
-                        className="h-11 border border-white/20 bg-transparent px-3 text-sm text-white outline-none transition-colors focus:border-white/50 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]"
+                        required
+                        value={values.nombre}
+                        onChange={(event) =>
+                          updateField("nombre", event.target.value)
+                        }
+                        placeholder="Ej: Ana"
+                        className={textInputClass(invalidByField.nombre)}
                       />
                     </label>
                     <label className="grid gap-2">
                       <FieldLabel>Apellidos</FieldLabel>
                       <input
                         type="text"
-                        className="h-11 border border-white/20 bg-transparent px-3 text-sm text-white outline-none transition-colors focus:border-white/50 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]"
+                        required
+                        value={values.apellidos}
+                        onChange={(event) =>
+                          updateField("apellidos", event.target.value)
+                        }
+                        placeholder="Ej: García López"
+                        className={textInputClass(invalidByField.apellidos)}
                       />
                     </label>
                   </div>
@@ -93,14 +256,26 @@ export default function ApplyPage() {
                       <FieldLabel>Email</FieldLabel>
                       <input
                         type="email"
-                        className="h-11 border border-white/20 bg-transparent px-3 text-sm text-white outline-none transition-colors focus:border-white/50 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]"
+                        required
+                        value={values.email}
+                        onChange={(event) =>
+                          updateField("email", event.target.value)
+                        }
+                        placeholder="tu@email.com"
+                        className={textInputClass(invalidByField.email)}
                       />
                     </label>
                     <label className="grid gap-2">
                       <FieldLabel>Teléfono</FieldLabel>
                       <input
                         type="tel"
-                        className="h-11 border border-white/20 bg-transparent px-3 text-sm text-white outline-none transition-colors focus:border-white/50 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]"
+                        required
+                        value={values.telefono}
+                        onChange={(event) =>
+                          updateField("telefono", event.target.value)
+                        }
+                        placeholder="+34 600 000 000"
+                        className={textInputClass(invalidByField.telefono)}
                       />
                     </label>
                   </div>
@@ -108,24 +283,46 @@ export default function ApplyPage() {
                     <label className="grid gap-2">
                       <FieldLabel>LinkedIn URL</FieldLabel>
                       <input
-                        type="url"
-                        className="h-11 border border-white/20 bg-transparent px-3 text-sm text-white outline-none transition-colors focus:border-white/50 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]"
+                        type="text"
+                        required
+                        value={values.linkedin}
+                        onChange={(event) =>
+                          updateField("linkedin", event.target.value)
+                        }
+                        placeholder="linkedin.com/in/usuario o usuario"
+                        className={textInputClass(invalidByField.linkedin)}
                       />
                     </label>
                     <label className="grid gap-2">
                       <FieldLabel>Twitter @</FieldLabel>
                       <input
                         type="text"
-                        className="h-11 border border-white/20 bg-transparent px-3 text-sm text-white outline-none transition-colors focus:border-white/50 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]"
+                        required
+                        value={values.twitter}
+                        onChange={(event) =>
+                          updateField("twitter", event.target.value)
+                        }
+                        placeholder="@usuario"
+                        className={textInputClass(invalidByField.twitter)}
                       />
                     </label>
                   </div>
                   <div className="grid gap-4 md:grid-cols-2">
                     <label className="grid gap-2">
                       <FieldLabel>Rol</FieldLabel>
-                      <Select name="rol">
-                        <SelectTrigger>
-                          <SelectValue placeholder="Selecciona..." />
+                      <Select
+                        name="rol"
+                        value={values.rol || undefined}
+                        onValueChange={(value) => updateField("rol", value)}
+                      >
+                        <SelectTrigger
+                          className={cn(
+                            values.rol
+                              ? ""
+                              : "border-white/20 focus:border-white/50",
+                          )}
+                        >
+                          <SelectValue placeholder="Selecciona un rol" />
                         </SelectTrigger>
                         <SelectContent>
                           {OPTIONS_ROL.map((option) => (
@@ -140,7 +337,13 @@ export default function ApplyPage() {
                       <FieldLabel>Título</FieldLabel>
                       <input
                         type="text"
-                        className="h-11 border border-white/20 bg-transparent px-3 text-sm text-white outline-none transition-colors focus:border-white/50 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]"
+                        required
+                        value={values.titulo}
+                        onChange={(event) =>
+                          updateField("titulo", event.target.value)
+                        }
+                        placeholder="Ej: CEO"
+                        className={textInputClass(false)}
                       />
                     </label>
                   </div>
@@ -154,15 +357,25 @@ export default function ApplyPage() {
                     <label className="grid gap-2">
                       <FieldLabel>Web</FieldLabel>
                       <input
-                        type="url"
-                        className="h-11 border border-white/20 bg-transparent px-3 text-sm text-white outline-none transition-colors focus:border-white/50 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]"
+                        type="text"
+                        required
+                        value={values.web}
+                        onChange={(event) =>
+                          updateField("web", event.target.value)
+                        }
+                        placeholder="empresa.com"
+                        className={textInputClass(invalidByField.web)}
                       />
                     </label>
                     <label className="grid gap-2">
                       <FieldLabel>Capital levantado</FieldLabel>
-                      <Select name="capital_levantado">
+                      <Select
+                        name="capital_levantado"
+                        value={values.capital || undefined}
+                        onValueChange={(value) => updateField("capital", value)}
+                      >
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecciona..." />
+                          <SelectValue placeholder="Selecciona tramo" />
                         </SelectTrigger>
                         <SelectContent>
                           {OPTIONS_CAPITAL.map((option) => (
@@ -175,9 +388,15 @@ export default function ApplyPage() {
                     </label>
                     <label className="grid gap-2">
                       <FieldLabel>Rango de ingresos</FieldLabel>
-                      <Select name="rango_ingresos">
+                      <Select
+                        name="rango_ingresos"
+                        value={values.ingresos || undefined}
+                        onValueChange={(value) =>
+                          updateField("ingresos", value)
+                        }
+                      >
                         <SelectTrigger>
-                          <SelectValue placeholder="Selecciona..." />
+                          <SelectValue placeholder="Selecciona rango" />
                         </SelectTrigger>
                         <SelectContent>
                           {OPTIONS_INGRESOS.map((option) => (
@@ -190,7 +409,8 @@ export default function ApplyPage() {
                     </label>
                     <InvestorsPillInput
                       label="Inversores (Web)"
-                      placeholder="Escribe una web y pulsa coma, espacio o Enter"
+                      placeholder="inversor.com + coma, espacio o Enter"
+                      onValuesChange={setInvestors}
                     />
                   </div>
                 </section>
@@ -200,17 +420,32 @@ export default function ApplyPage() {
                     Otros
                   </p>
                   <label className="grid gap-2">
-                    <FieldLabel optional>¿Te ha referido alguien de la comunidad?</FieldLabel>
+                    <FieldLabel optional>
+                      ¿Te ha referido alguien de la comunidad?
+                    </FieldLabel>
                     <input
                       type="text"
-                      className="h-11 border border-white/20 bg-transparent px-3 text-sm text-white outline-none transition-colors focus:border-white/50 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]"
+                      value={values.referido}
+                      onChange={(event) =>
+                        updateField("referido", event.target.value)
+                      }
+                      placeholder="Nombre y apellidos"
+                      className={textInputClass(false)}
                     />
                   </label>
                   <label className="grid gap-2">
-                    <FieldLabel optional>¿Cómo has oído hablar de Ateneo?</FieldLabel>
-                    <Select name="descubrimiento">
+                    <FieldLabel optional>
+                      ¿Cómo has oído hablar de Ateneo?
+                    </FieldLabel>
+                    <Select
+                      name="descubrimiento"
+                      value={values.descubrimiento || undefined}
+                      onValueChange={(value) =>
+                        updateField("descubrimiento", value)
+                      }
+                    >
                       <SelectTrigger>
-                        <SelectValue placeholder="Selecciona..." />
+                        <SelectValue placeholder="Selecciona canal" />
                       </SelectTrigger>
                       <SelectContent>
                         {OPTIONS_DESCUBRIMIENTO.map((option) => (
@@ -226,12 +461,21 @@ export default function ApplyPage() {
             </div>
 
             <div className="flex h-16 items-center justify-end border-t border-white/20 px-6 md:px-10">
-              <button
-                type="button"
-                className="inline-flex h-10 items-center border border-white px-5 text-xs uppercase tracking-[0.18em] [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] transition-colors hover:bg-white hover:text-black"
-              >
-                Enviar solicitud
-              </button>
+              <div className="group relative">
+                {submitDisabled ? (
+                  <div className="pointer-events-none absolute bottom-full right-0 mb-2 w-[340px] border border-white/25 bg-black px-3 py-2 text-[11px] leading-relaxed text-white/80 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
+                    {submitTooltip}
+                  </div>
+                ) : null}
+                <button
+                  type="button"
+                  title={submitTooltip || undefined}
+                  disabled={submitDisabled}
+                  className="inline-flex h-10 items-center border border-white px-5 text-xs uppercase tracking-[0.18em] [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] transition-colors hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:border-white/35 disabled:text-white/40 disabled:hover:bg-transparent disabled:hover:text-white/40"
+                >
+                  Enviar solicitud
+                </button>
+              </div>
             </div>
           </div>
 
@@ -245,7 +489,7 @@ export default function ApplyPage() {
                   Solicitud Ateneo
                 </p>
                 <p className="mt-10 text-2xl [font-family:Georgia,'Times_New_Roman',Times,serif]">
-                  Nombre Apellidos
+                  {applicantName}
                 </p>
                 <p className="mt-2 text-xs uppercase tracking-[0.16em] text-white/55 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
                   Tarjeta de aplicación
