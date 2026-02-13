@@ -1,5 +1,12 @@
 import Link from "next/link";
 import { InvestorsPillInput } from "@/components/apply/investors-pill-input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 const OPTIONS_ROL = ["Fundador", "Co-fundador", "Otro"] as const;
 const OPTIONS_CAPITAL = [
@@ -116,14 +123,18 @@ export default function ApplyPage() {
                   <div className="grid gap-4 md:grid-cols-2">
                     <label className="grid gap-2">
                       <FieldLabel>Rol</FieldLabel>
-                      <select className="h-11 border border-white/20 bg-black px-3 text-sm text-white outline-none transition-colors focus:border-white/50 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
-                        <option value="">Selecciona...</option>
-                        {OPTIONS_ROL.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
+                      <Select name="rol">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {OPTIONS_ROL.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </label>
                     <label className="grid gap-2">
                       <FieldLabel>Título</FieldLabel>
@@ -149,29 +160,37 @@ export default function ApplyPage() {
                     </label>
                     <label className="grid gap-2">
                       <FieldLabel>Capital levantado</FieldLabel>
-                      <select className="h-11 border border-white/20 bg-black px-3 text-sm text-white outline-none transition-colors focus:border-white/50 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
-                        <option value="">Selecciona...</option>
-                        {OPTIONS_CAPITAL.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
+                      <Select name="capital_levantado">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {OPTIONS_CAPITAL.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </label>
                     <label className="grid gap-2">
                       <FieldLabel>Rango de ingresos</FieldLabel>
-                      <select className="h-11 border border-white/20 bg-black px-3 text-sm text-white outline-none transition-colors focus:border-white/50 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
-                        <option value="">Selecciona...</option>
-                        {OPTIONS_INGRESOS.map((option) => (
-                          <option key={option} value={option}>
-                            {option}
-                          </option>
-                        ))}
-                      </select>
+                      <Select name="rango_ingresos">
+                        <SelectTrigger>
+                          <SelectValue placeholder="Selecciona..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {OPTIONS_INGRESOS.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
                     </label>
                     <InvestorsPillInput
                       label="Inversores (Web)"
-                      placeholder="Escribe y separa por comas"
+                      placeholder="Escribe una web y pulsa coma, espacio o Enter"
                     />
                   </div>
                 </section>
@@ -189,14 +208,18 @@ export default function ApplyPage() {
                   </label>
                   <label className="grid gap-2">
                     <FieldLabel optional>¿Cómo has oído hablar de Ateneo?</FieldLabel>
-                    <select className="h-11 border border-white/20 bg-black px-3 text-sm text-white outline-none transition-colors focus:border-white/50 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
-                      <option value="">Selecciona...</option>
-                      {OPTIONS_DESCUBRIMIENTO.map((option) => (
-                        <option key={option} value={option}>
-                          {option}
-                        </option>
-                      ))}
-                    </select>
+                    <Select name="descubrimiento">
+                      <SelectTrigger>
+                        <SelectValue placeholder="Selecciona..." />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {OPTIONS_DESCUBRIMIENTO.map((option) => (
+                          <SelectItem key={option} value={option}>
+                            {option}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
                   </label>
                 </section>
               </form>
