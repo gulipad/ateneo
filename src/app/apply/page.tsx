@@ -1,7 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { submitApplication } from "./actions";
 import { getCountryCallingCode, type CountryCode } from "libphonenumber-js/min";
 import { CountryCodeSelect } from "@/components/apply/country-code-select";
 import { InvestorsPillInput } from "@/components/apply/investors-pill-input";
@@ -183,6 +186,8 @@ function textInputClass(isInvalid: boolean) {
 }
 
 export default function ApplyPage() {
+  const router = useRouter();
+  const [isPending, startTransition] = useTransition();
   const [values, setValues] = useState<FormValues>(INITIAL_VALUES);
   const [investors, setInvestors] = useState<string[]>([]);
   const [investorsResetToken, setInvestorsResetToken] = useState<number | undefined>(
@@ -265,6 +270,30 @@ export default function ApplyPage() {
   );
 
   useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+
+    const previous = {
+      htmlOverflow: html.style.overflow,
+      bodyOverflow: body.style.overflow,
+      htmlOverscroll: html.style.overscrollBehavior,
+      bodyOverscroll: body.style.overscrollBehavior,
+    };
+
+    html.style.overflow = "hidden";
+    body.style.overflow = "hidden";
+    html.style.overscrollBehavior = "none";
+    body.style.overscrollBehavior = "none";
+
+    return () => {
+      html.style.overflow = previous.htmlOverflow;
+      body.style.overflow = previous.bodyOverflow;
+      html.style.overscrollBehavior = previous.htmlOverscroll;
+      body.style.overscrollBehavior = previous.bodyOverscroll;
+    };
+  }, []);
+
+  useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
       // "fn+F10" generally reaches the browser as "F10".
       if (event.key !== "F10" || event.repeat) return;
@@ -282,9 +311,16 @@ export default function ApplyPage() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, []);
 
-  const onSubmitPreview = () => {
-    if (submitDisabled) return;
-    console.log("[apply] Submit payload", submissionPayload);
+  const onSubmit = () => {
+    if (submitDisabled || isPending) return;
+    startTransition(async () => {
+      const result = await submitApplication(submissionPayload);
+      if (result.success) {
+        router.push("/success");
+      } else {
+        toast.error(result.error);
+      }
+    });
   };
 
   return (
@@ -577,11 +613,11 @@ export default function ApplyPage() {
                 <button
                   type="button"
                   title={submitTooltip || undefined}
-                  disabled={submitDisabled}
-                  onClick={onSubmitPreview}
+                  disabled={submitDisabled || isPending}
+                  onClick={onSubmit}
                   className="inline-flex h-10 items-center border border-white px-5 text-xs uppercase tracking-[0.18em] [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] transition-colors hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:border-white/35 disabled:text-white/40 disabled:hover:bg-transparent disabled:hover:text-white/40"
                 >
-                  Enviar solicitud
+                  {isPending ? "Enviando..." : "Enviar solicitud"}
                 </button>
               </div>
             </div>
