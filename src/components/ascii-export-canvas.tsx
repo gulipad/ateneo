@@ -129,24 +129,36 @@ export function AsciiExportCanvas({
       const drawBlockHeight = rows * lineHeight;
       const originX = Math.floor((width - drawBlockWidth) / 2);
       const originY = Math.floor((height - drawBlockHeight) / 2);
-      const blockLeft = originX;
-      const blockTop = originY;
-      const blockRight = originX + drawBlockWidth;
-      const blockBottom = originY + drawBlockHeight;
+      const leftCols = Math.max(0, Math.ceil(originX / charWidth));
+      const topRows = Math.max(0, Math.ceil(originY / lineHeight));
+      const rightCols = Math.max(1, Math.ceil((width - originX) / charWidth));
+      const bottomRows = Math.max(1, Math.ceil((height - originY) / lineHeight));
+      const frameCols = leftCols + rightCols;
+      const frameRows = topRows + bottomRows;
+      const frameOriginX = originX - leftCols * charWidth;
+      const frameOriginY = originY - topRows * lineHeight;
 
-      const mouseCol = (mouse.x - originX) / charWidth;
-      const mouseRow = (mouse.y - originY) / lineHeight;
+      const mouseCol = (mouse.x - frameOriginX) / charWidth;
+      const mouseRow = (mouse.y - frameOriginY) / lineHeight;
       const mouseRadiusChars = data.effects.mouseRadius / Math.max(charWidth, lineHeight);
-      const ramp = data.generation.ramp;
+      const ramp = data.generation.ramp.length ? data.generation.ramp : " .:-=+*#%@";
+      const rampIndexByChar = new Map<string, number>();
+      for (let index = 0; index < ramp.length; index += 1) {
+        rampIndexByChar.set(ramp[index], index);
+      }
       const timeSeed = time * (0.0008 + data.effects.dynamismSpeed * 0.0004);
 
       context.fillStyle = data.render.foreground;
       context.font = `${fontSize}px ${data.render.fontFamily}`;
       context.textBaseline = "top";
 
-      for (let row = 0; row < data.asciiLines.length; row += 1) {
-        const source = data.asciiLines[row] ?? "";
-        const chars = source.split("");
+      for (let row = 0; row < frameRows; row += 1) {
+        const sourceRow = row - topRows;
+        const source =
+          sourceRow >= 0 && sourceRow < data.asciiLines.length
+            ? data.asciiLines[sourceRow] ?? ""
+            : "";
+        const chars = new Array<string>(frameCols);
 
         let glitchShift = 0;
         if (data.effects.glitchIntensity > 0) {
@@ -160,15 +172,19 @@ export function AsciiExportCanvas({
           }
         }
 
-        for (let col = 0; col < chars.length; col += 1) {
-          let ch = chars[col];
+        for (let col = 0; col < frameCols; col += 1) {
+          const sourceCol = col - leftCols;
+          let ch =
+            sourceCol >= 0 && sourceCol < source.length
+              ? source[sourceCol] ?? " "
+              : " ";
 
           if (data.effects.charDynamism > 0 && ch !== " ") {
             const p = (data.effects.charDynamism / 100) * 0.16;
             const r = hash3(col, row, Math.floor(timeSeed * 60));
             if (r < p) {
-              const current = ramp.indexOf(ch);
-              if (current >= 0) {
+              const current = rampIndexByChar.get(ch);
+              if (current !== undefined) {
                 const dir = hash3(row, col, Math.floor(timeSeed * 80) + 1) < 0.5 ? -1 : 1;
                 const next = clamp(current + dir, 0, ramp.length - 1);
                 ch = ramp[next];
@@ -193,8 +209,8 @@ export function AsciiExportCanvas({
               if (ch === " " && r < strength * 0.5) {
                 ch = ".";
               } else if (ch !== " " && r < strength * 0.24) {
-                const idx = ramp.indexOf(ch);
-                if (idx >= 0) ch = ramp[Math.min(ramp.length - 1, idx + 1)];
+                const idx = rampIndexByChar.get(ch);
+                if (idx !== undefined) ch = ramp[Math.min(ramp.length - 1, idx + 1)];
               }
             }
           }
@@ -202,29 +218,12 @@ export function AsciiExportCanvas({
           chars[col] = ch;
         }
 
-        context.fillText(chars.join(""), originX + glitchShift, originY + row * lineHeight);
-      }
-
-      // Extend whitespace-noise to the full canvas so the padded area also feels active.
-      if (data.effects.whitespaceNoise > 0) {
-        const density = (data.effects.whitespaceNoise / 100) * 0.018;
-        const gridCols = Math.max(1, Math.floor(width / Math.max(charWidth, 1)));
-        const gridRows = Math.max(1, Math.floor(height / Math.max(lineHeight, 1)));
-        const salt = Math.floor(timeSeed * 42) + 911;
-
-        for (let row = 0; row < gridRows; row += 1) {
-          const y = row * lineHeight;
-          for (let col = 0; col < gridCols; col += 1) {
-            const x = col * charWidth;
-            const insideBlock =
-              x >= blockLeft && x <= blockRight && y >= blockTop && y <= blockBottom;
-            if (insideBlock) continue;
-
-            const r = hash3(col * 1.13, row * 0.87, salt);
-            if (r < density) {
-              context.fillText(".", x, y);
-            }
-          }
+        const rowBaseX = frameOriginX + glitchShift;
+        const rowY = frameOriginY + row * lineHeight;
+        for (let col = 0; col < frameCols; col += 1) {
+          const ch = chars[col] ?? " ";
+          if (ch === " ") continue;
+          context.fillText(ch, rowBaseX + col * charWidth, rowY);
         }
       }
 
