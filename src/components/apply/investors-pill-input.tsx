@@ -9,6 +9,8 @@ type InvestorsPillInputProps = {
   placeholder: string;
   name?: string;
   onValuesChange?: (values: string[]) => void;
+  presetValues?: string[];
+  resetToken?: number;
 };
 
 type InvestorPill = {
@@ -39,6 +41,8 @@ export function InvestorsPillInput({
   placeholder,
   name = "inversores",
   onValuesChange,
+  presetValues,
+  resetToken,
 }: InvestorsPillInputProps) {
   const inputId = useId();
   const [draft, setDraft] = useState("");
@@ -51,6 +55,24 @@ export function InvestorsPillInput({
   useEffect(() => {
     onValuesChange?.(items.map((item) => item.value));
   }, [items, onValuesChange]);
+
+  useEffect(() => {
+    if (resetToken === undefined || !presetValues) return;
+    const next = presetValues
+      .map((value) => normalizeToken(value))
+      .filter(Boolean)
+      .map((value) => {
+        const generatedId =
+          typeof crypto !== "undefined" && typeof crypto.randomUUID === "function"
+            ? crypto.randomUUID()
+            : `pill-${nextIdRef.current}`;
+        nextIdRef.current += 1;
+        return { id: generatedId, value };
+      });
+    setItems(next);
+    setDraft("");
+    setError(null);
+  }, [presetValues, resetToken]);
 
   const removeTokenById = (id: string) => {
     setItems((prev) => prev.filter((item) => item.id !== id));

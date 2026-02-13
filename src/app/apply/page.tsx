@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
+import { getCountryCallingCode, type CountryCode } from "libphonenumber-js/min";
+import { CountryCodeSelect } from "@/components/apply/country-code-select";
 import { InvestorsPillInput } from "@/components/apply/investors-pill-input";
 import {
   Select,
@@ -40,7 +42,7 @@ const OPTIONS_DESCUBRIMIENTO = [
 
 const NAME_PATTERN = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' -]{2,100}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-const PHONE_PATTERN = /^\+?[0-9()\-\s]{7,20}$/;
+const PHONE_PATTERN = /^[0-9()\-\s]{6,16}$/;
 const LINKEDIN_PATTERN =
   /^(?:[a-zA-Z0-9-]{3,100}|(?:https?:\/\/)?(?:www\.)?linkedin\.com\/in\/[a-zA-Z0-9_%\-]{3,100}\/?)$/i;
 const TWITTER_PATTERN = /^@?[A-Za-z0-9_]{1,15}$/;
@@ -51,6 +53,7 @@ type FormValues = {
   nombre: string;
   apellidos: string;
   email: string;
+  telefonoPais: string;
   telefono: string;
   linkedin: string;
   twitter: string;
@@ -67,6 +70,7 @@ const INITIAL_VALUES: FormValues = {
   nombre: "",
   apellidos: "",
   email: "",
+  telefonoPais: "ES",
   telefono: "",
   linkedin: "",
   twitter: "",
@@ -78,6 +82,67 @@ const INITIAL_VALUES: FormValues = {
   referido: "",
   descubrimiento: "",
 };
+
+const DUMMY_VALUES: FormValues = {
+  nombre: "Ana",
+  apellidos: "García López",
+  email: "ana.garcia@nova-startup.es",
+  telefonoPais: "ES",
+  telefono: "600 123 456",
+  linkedin: "linkedin.com/in/anagarcia",
+  twitter: "@anagarcia",
+  rol: "Fundador",
+  titulo: "CEO",
+  web: "nova-startup.es",
+  capital: "1-5M€",
+  ingresos: "<1M€",
+  referido: "María Pérez",
+  descubrimiento: "LinkedIn",
+};
+
+const DUMMY_INVESTORS = ["sequoiacap.com", "khoslaventures.com", "indexventures.com"];
+
+function getDialFromCountry(countryCode: string) {
+  try {
+    return `+${getCountryCallingCode(countryCode as CountryCode)}`;
+  } catch {
+    return "";
+  }
+}
+
+function buildSubmissionPayload(values: FormValues, investors: string[]) {
+  const telefonoPrefijo = getDialFromCountry(values.telefonoPais);
+  const telefonoNumero = values.telefono.trim();
+  const telefonoCompleto = [telefonoPrefijo, telefonoNumero].filter(Boolean).join(" ");
+
+  return {
+    personal: {
+      nombre: values.nombre.trim(),
+      apellidos: values.apellidos.trim(),
+      email: values.email.trim(),
+      telefono: {
+        countryCode: values.telefonoPais,
+        dialCode: telefonoPrefijo,
+        localNumber: telefonoNumero,
+        full: telefonoCompleto,
+      },
+      linkedin: values.linkedin.trim(),
+      twitter: values.twitter.trim(),
+      rol: values.rol,
+      titulo: values.titulo.trim(),
+    },
+    empresa: {
+      web: values.web.trim(),
+      capitalLevantado: values.capital,
+      rangoIngresos: values.ingresos,
+      inversoresWeb: investors,
+    },
+    otros: {
+      referidoPor: values.referido.trim() || null,
+      descubrimiento: values.descubrimiento || null,
+    },
+  };
+}
 
 function FieldLabel({
   children,
@@ -120,6 +185,9 @@ function textInputClass(isInvalid: boolean) {
 export default function ApplyPage() {
   const [values, setValues] = useState<FormValues>(INITIAL_VALUES);
   const [investors, setInvestors] = useState<string[]>([]);
+  const [investorsResetToken, setInvestorsResetToken] = useState<number | undefined>(
+    undefined,
+  );
   const debouncedValues = useDebouncedValue(values, 1000);
 
   const updateField = <K extends keyof FormValues>(
@@ -191,6 +259,33 @@ export default function ApplyPage() {
 
   const applicantName =
     `${values.nombre} ${values.apellidos}`.trim() || "Nombre Apellidos";
+  const submissionPayload = useMemo(
+    () => buildSubmissionPayload(values, investors),
+    [investors, values],
+  );
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      // "fn+F10" generally reaches the browser as "F10".
+      if (event.key !== "F10" || event.repeat) return;
+      event.preventDefault();
+
+      setValues(DUMMY_VALUES);
+      setInvestors(DUMMY_INVESTORS);
+      setInvestorsResetToken(Date.now());
+
+      const payload = buildSubmissionPayload(DUMMY_VALUES, DUMMY_INVESTORS);
+      console.log("[apply] Prefill dummy payload", payload);
+    };
+
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
+  }, []);
+
+  const onSubmitPreview = () => {
+    if (submitDisabled) return;
+    console.log("[apply] Submit payload", submissionPayload);
+  };
 
   return (
     <main className="h-[100dvh] overflow-hidden bg-black text-white">
@@ -267,16 +362,26 @@ export default function ApplyPage() {
                     </label>
                     <label className="grid gap-2">
                       <FieldLabel>Teléfono</FieldLabel>
-                      <input
-                        type="tel"
-                        required
-                        value={values.telefono}
-                        onChange={(event) =>
-                          updateField("telefono", event.target.value)
-                        }
-                        placeholder="+34 600 000 000"
-                        className={textInputClass(invalidByField.telefono)}
-                      />
+                      <div className="flex gap-2">
+                        <CountryCodeSelect
+                          className="w-[116px] shrink-0"
+                          value={values.telefonoPais}
+                          onChange={(code) => updateField("telefonoPais", code)}
+                        />
+                        <input
+                          type="tel"
+                          required
+                          value={values.telefono}
+                          onChange={(event) =>
+                            updateField("telefono", event.target.value)
+                          }
+                          placeholder="600 000 000"
+                          className={cn(
+                            textInputClass(invalidByField.telefono),
+                            "flex-1",
+                          )}
+                        />
+                      </div>
                     </label>
                   </div>
                   <div className="grid gap-4 md:grid-cols-2">
@@ -411,6 +516,8 @@ export default function ApplyPage() {
                       label="Inversores (Web)"
                       placeholder="inversor.com + coma, espacio o Enter"
                       onValuesChange={setInvestors}
+                      presetValues={DUMMY_INVESTORS}
+                      resetToken={investorsResetToken}
                     />
                   </div>
                 </section>
@@ -471,6 +578,7 @@ export default function ApplyPage() {
                   type="button"
                   title={submitTooltip || undefined}
                   disabled={submitDisabled}
+                  onClick={onSubmitPreview}
                   className="inline-flex h-10 items-center border border-white px-5 text-xs uppercase tracking-[0.18em] [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] transition-colors hover:bg-white hover:text-black disabled:cursor-not-allowed disabled:border-white/35 disabled:text-white/40 disabled:hover:bg-transparent disabled:hover:text-white/40"
                 >
                   Enviar solicitud
