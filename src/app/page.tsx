@@ -1,5 +1,6 @@
 import { HeroAteneoExport } from "@/components/hero-ateneo-export";
 import { AsciiExportCanvas } from "@/components/ascii-export-canvas";
+import { TypographyExplorer } from "@/components/typography-explorer";
 import type { AsciiExport } from "@/lib/ascii-export";
 import asciiArtifact from "@/data/ateneo-export.json";
 
@@ -82,8 +83,9 @@ export default function Page() {
   const sectionArtifact = asciiArtifact as AsciiExport;
 
   return (
-    <main className="min-h-screen bg-black text-white">
-      <div className="mx-auto w-full 2xl:max-w-[1440px] 2xl:border-x 2xl:border-white/20">
+    <TypographyExplorer>
+      <main className="min-h-screen bg-black text-white">
+        <div className="mx-auto w-full 2xl:max-w-[1440px] 2xl:border-x 2xl:border-white/20">
         <header className="h-16 border-y border-white/20">
           <nav className="flex h-full items-center justify-between px-6 md:px-10">
             <p className="type-content text-xs uppercase tracking-[0.22em] [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
@@ -312,7 +314,8 @@ export default function Page() {
             </a>
           </div>
         </section>
-      </div>
-    </main>
+        </div>
+      </main>
+    </TypographyExplorer>
   );
 }
