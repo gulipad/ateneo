@@ -16,12 +16,52 @@ type AsciiExportCanvasProps = {
   artifact: AsciiExport | string;
   className?: string;
   fit?: "contain" | "cover";
+  trimWhitespace?: boolean;
 };
+
+function trimAsciiLines(lines: string[]) {
+  let minRow = Number.POSITIVE_INFINITY;
+  let maxRow = Number.NEGATIVE_INFINITY;
+  let minCol = Number.POSITIVE_INFINITY;
+  let maxCol = Number.NEGATIVE_INFINITY;
+
+  for (let row = 0; row < lines.length; row += 1) {
+    const source = lines[row] ?? "";
+    for (let col = 0; col < source.length; col += 1) {
+      if (source[col] === " ") continue;
+      if (row < minRow) minRow = row;
+      if (row > maxRow) maxRow = row;
+      if (col < minCol) minCol = col;
+      if (col > maxCol) maxCol = col;
+    }
+  }
+
+  if (
+    !Number.isFinite(minRow) ||
+    !Number.isFinite(maxRow) ||
+    !Number.isFinite(minCol) ||
+    !Number.isFinite(maxCol)
+  ) {
+    return lines;
+  }
+
+  const out: string[] = [];
+  for (let row = minRow; row <= maxRow; row += 1) {
+    const source = lines[row] ?? "";
+    let line = "";
+    for (let col = minCol; col <= maxCol; col += 1) {
+      line += source[col] ?? " ";
+    }
+    out.push(line);
+  }
+  return out;
+}
 
 export function AsciiExportCanvas({
   artifact,
   className,
   fit = "contain",
+  trimWhitespace = false,
 }: AsciiExportCanvasProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -37,6 +77,14 @@ export function AsciiExportCanvas({
     }
   }, [artifact]);
   const parseError = data ? null : "Invalid export JSON.";
+  const sourceLines = useMemo(() => {
+    if (!data) return [];
+    return trimWhitespace ? trimAsciiLines(data.asciiLines) : data.asciiLines;
+  }, [data, trimWhitespace]);
+  const sourceCols = useMemo(
+    () => sourceLines.reduce((max, line) => Math.max(max, line.length), 0),
+    [sourceLines],
+  );
 
   useEffect(() => {
     const host = hostRef.current;
@@ -103,8 +151,8 @@ export function AsciiExportCanvas({
       context.fillStyle = data.render.background;
       context.fillRect(0, 0, width, height);
 
-      const cols = data.dimensions.cols || data.asciiLines[0]?.length || 0;
-      const rows = data.dimensions.rows || data.asciiLines.length;
+      const cols = trimWhitespace ? sourceCols : data.dimensions.cols || sourceCols;
+      const rows = trimWhitespace ? sourceLines.length : data.dimensions.rows || sourceLines.length;
       if (!cols || !rows) {
         rafId = window.requestAnimationFrame(draw);
         return;
@@ -155,8 +203,8 @@ export function AsciiExportCanvas({
       for (let row = 0; row < frameRows; row += 1) {
         const sourceRow = row - topRows;
         const source =
-          sourceRow >= 0 && sourceRow < data.asciiLines.length
-            ? data.asciiLines[sourceRow] ?? ""
+          sourceRow >= 0 && sourceRow < sourceLines.length
+            ? sourceLines[sourceRow] ?? ""
             : "";
         const chars = new Array<string>(frameCols);
 
@@ -254,7 +302,7 @@ export function AsciiExportCanvas({
       host.removeEventListener("pointermove", onPointerMove);
       host.removeEventListener("pointerleave", onPointerLeave);
     };
-  }, [data, fit, viewport.height, viewport.width]);
+  }, [data, fit, sourceCols, sourceLines, trimWhitespace, viewport.height, viewport.width]);
 
   return (
     <div ref={hostRef} className={`h-full w-full ${className ?? ""}`}>

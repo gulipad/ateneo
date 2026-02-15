@@ -1,5 +1,10 @@
 import { HeroAteneoExport } from "@/components/hero-ateneo-export";
+import { AsciiExportCanvas } from "@/components/ascii-export-canvas";
 import { TypographyExplorer } from "@/components/typography-explorer";
+import type { AsciiExport } from "@/lib/ascii-export";
+import conocimientoArtifact from "@/data/conocimiento-export.json";
+import consejoArtifact from "@/data/consejo-export.json";
+import recomendacionesArtifact from "@/data/recomendaciones-export.json";
 
 const REQUISITOS = [
   "Ser fundador o cofundador activo de una compañía.",
@@ -263,7 +268,30 @@ export default function Page() {
                     className="px-0 py-6 md:px-8 md:py-8 lg:px-10"
                   >
                     <div className="mt-4 h-[220px] md:h-[240px]">
-                      <PlaceholderIllustration variant={index} />
+                      {index === 0 ? (
+                        <AsciiExportCanvas
+                          artifact={conocimientoArtifact as AsciiExport}
+                          className="h-full w-full"
+                          fit="contain"
+                          trimWhitespace
+                        />
+                      ) : index === 1 ? (
+                        <AsciiExportCanvas
+                          artifact={consejoArtifact as AsciiExport}
+                          className="h-full w-full"
+                          fit="contain"
+                          trimWhitespace
+                        />
+                      ) : index === 2 ? (
+                        <AsciiExportCanvas
+                          artifact={recomendacionesArtifact as AsciiExport}
+                          className="h-full w-full"
+                          fit="contain"
+                          trimWhitespace
+                        />
+                      ) : (
+                        <PlaceholderIllustration variant={index} />
+                      )}
                     </div>
 
                     <p className="type-content mt-6 text-[11px] uppercase tracking-[0.2em] text-white/72 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
