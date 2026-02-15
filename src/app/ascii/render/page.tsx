@@ -52,9 +52,11 @@ export default function AsciiRenderPage() {
         <div className="grid h-full w-full grid-cols-1 lg:grid-cols-[380px_minmax(0,1fr)]">
           <aside className="border-b border-white/10 lg:border-r lg:border-b-0 lg:border-white/10">
             <div className="flex h-11 items-center justify-between border-b border-white/10 px-3 text-[11px]">
-              <p className="uppercase tracking-[0.14em] text-slate-300">Render From Export</p>
+              <p className="uppercase tracking-[0.14em] text-slate-300">
+                Render desde export
+              </p>
               <a href="/ascii" className="text-slate-200">
-                Back to Lab
+                Volver al laboratorio
               </a>
             </div>
             <textarea
@@ -66,8 +68,8 @@ export default function AsciiRenderPage() {
           </aside>
           <div className="grid min-h-0 grid-rows-[36px_minmax(0,1fr)]">
             <div className="flex items-center justify-between border-b border-white/10 px-3 text-[11px] text-slate-300">
-              <p>Preview</p>
-              <p>Image-free runtime renderer</p>
+              <p>Vista previa</p>
+              <p>Render en runtime sin imagen</p>
             </div>
             <AsciiExportCanvas artifact={payload} className="min-h-0 overflow-hidden" />
           </div>

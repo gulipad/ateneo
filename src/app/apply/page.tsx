@@ -343,12 +343,18 @@ export default function ApplyPage() {
                 href="/ascii"
                 className="opacity-80 transition-opacity hover:opacity-100"
               >
-                ASCII Lab
+                Laboratorio ASCII
+              </Link>
+              <Link
+                href="/"
+                className="opacity-80 transition-opacity hover:opacity-100"
+              >
+                Inicio
               </Link>
               <Link href="/apply" className="opacity-100">
-                Apply
+                Solicitud
               </Link>
-              <span className="opacity-80">Archive</span>
+              <span className="opacity-80">Archivo</span>
             </div>
           </nav>
         </header>

@@ -4,7 +4,8 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Ateneo",
-  description: "Digital experience prototypes for Ateneo de Sevilla",
+  description:
+    "Ateneo es una comunidad privada para fundadores en España con alta densidad de talento.",
 };
 
 export default function RootLayout({
@@ -13,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="es">
       <body>
         {children}
         <Toaster />
