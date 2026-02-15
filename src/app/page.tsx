@@ -1,18 +1,10 @@
 import { HeroAteneoExport } from "@/components/hero-ateneo-export";
 import { AsciiExportCanvas } from "@/components/ascii-export-canvas";
-import { TypographyExplorer } from "@/components/typography-explorer";
+import { PersistentJoinCta } from "@/components/persistent-join-cta";
 import type { AsciiExport } from "@/lib/ascii-export";
 import conocimientoArtifact from "@/data/conocimiento-export.json";
 import consejoArtifact from "@/data/consejo-export.json";
 import recomendacionesArtifact from "@/data/recomendaciones-export.json";
-
-const REQUISITOS = [
-  "Ser fundador o cofundador activo de una compañía.",
-  "Operar en España o construir desde España.",
-  "Participar con generosidad: pedir ayuda y también aportar.",
-  "Mantener confidencialidad y respeto entre miembros.",
-  "No se admiten VCs, empleados ni perfiles ejecutivos no fundadores.",
-] as const;
 
 const PROCESO = [
   {
@@ -91,280 +83,256 @@ function PlaceholderIllustration({ variant }: { variant: number }) {
 
 export default function Page() {
   return (
-    <TypographyExplorer>
-      <main className="min-h-screen bg-black text-white">
-        <div className="mx-auto w-full 2xl:max-w-[1440px] 2xl:border-x 2xl:border-white/20">
-          <header className="h-16 border-y border-white/20">
-            <nav className="flex h-full items-center justify-between px-6 md:px-10">
-              <p className="type-content text-xs uppercase tracking-[0.22em] [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-                Ateneo
+    <main className="min-h-screen bg-black text-white">
+      <div className="mx-auto w-full 2xl:max-w-[1440px] 2xl:border-x 2xl:border-white/20">
+        <header className="h-16 border-y border-white/20">
+          <nav className="flex h-full items-center justify-between px-6 md:px-10">
+            <p className="type-content text-xs uppercase tracking-[0.22em] [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+              Ateneo
+            </p>
+            <div className="type-content flex items-center gap-4 text-xs uppercase tracking-[0.14em] [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+              <a
+                href="/apply"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex h-9 items-center border border-white/40 px-4 text-[10px] tracking-[0.16em] transition-colors hover:border-white hover:bg-white hover:text-black md:h-10 md:px-5 md:text-[11px]"
+              >
+                Únete al foro
+              </a>
+            </div>
+          </nav>
+        </header>
+
+        <section className="w-full">
+          <div className="flex min-h-[calc(100dvh-4rem)] flex-col md:h-[calc(100dvh-4rem)]">
+            <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-2">
+              <div className="flex min-h-0 items-center border-b border-white/20 px-6 py-10 md:border-r md:border-b-0 md:px-10 md:py-12 lg:py-16">
+                <div className="w-full max-w-[36rem]">
+                  <h1 className="type-heading mt-2 max-w-[13ch] text-[clamp(2.6rem,5.3vw,5rem)] leading-[0.98] tracking-tight [font-family:Georgia,'Times_New_Roman',Times,serif]">
+                    El foro para fundadores excepcionales.
+                  </h1>
+                  <p className="type-content mt-5 max-w-[42ch] text-sm leading-relaxed text-white/72 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light md:text-base">
+                    Un espacio independiente para que la información fluya. Sólo
+                    para fundadores.
+                  </p>
+                </div>
+              </div>
+              <div className="min-h-[34vh] overflow-hidden sm:min-h-[40vh] md:min-h-0">
+                <HeroAteneoExport />
+              </div>
+            </div>
+
+            <div className="grid h-12 shrink-0 grid-cols-2 divide-x divide-white/20 border-t border-b border-white/20 md:grid-cols-4">
+              <div className="type-content flex items-center px-4 text-[10px] uppercase tracking-[0.16em] text-white/70 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+                Solo fundadores
+              </div>
+              <div className="type-content flex items-center px-4 text-[10px] uppercase tracking-[0.16em] text-white/70 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+                Comunidad privada
+              </div>
+              <div className="type-content hidden items-center px-4 text-[10px] uppercase tracking-[0.16em] text-white/70 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light md:flex">
+                España
+              </div>
+              <div className="type-content hidden items-center px-4 text-[10px] uppercase tracking-[0.16em] text-white/70 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light md:flex">
+                Alta densidad de talento
+              </div>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="por-que"
+          className="w-full border-b border-white/20 px-6 py-12 md:px-10 md:py-16"
+        >
+          <div className="grid gap-10 md:grid-cols-2 md:gap-14">
+            <div className="border-b border-white/20 pb-8 md:border-b-0 md:pb-0">
+              <p className="type-content text-[11px] uppercase tracking-[0.22em] text-white/45 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+                Por qué
               </p>
-              <div className="type-content hidden gap-8 text-xs uppercase tracking-[0.14em] [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light md:flex">
-                <a
-                  href="#como"
-                  className="opacity-80 transition-opacity hover:opacity-100"
-                >
-                  Cómo
-                </a>
-                <a
-                  href="#que"
-                  className="opacity-80 transition-opacity hover:opacity-100"
-                >
-                  Qué
-                </a>
-                <a
-                  href="#requisitos"
-                  className="opacity-80 transition-opacity hover:opacity-100"
-                >
-                  Requisitos
-                </a>
-              </div>
-            </nav>
-          </header>
-
-          <section className="w-full">
-            <div className="flex min-h-[calc(100dvh-4rem)] flex-col md:h-[calc(100dvh-4rem)]">
-              <div className="grid min-h-0 flex-1 grid-cols-1 md:grid-cols-2">
-                <div className="flex min-h-0 items-center border-b border-white/20 px-6 py-10 md:border-r md:border-b-0 md:px-10 md:py-12 lg:py-16">
-                  <div className="w-full max-w-[36rem]">
-                    <h1 className="type-heading mt-2 max-w-[13ch] text-[clamp(2.6rem,5.3vw,5rem)] leading-[0.98] tracking-tight [font-family:Georgia,'Times_New_Roman',Times,serif]">
-                      El foro para fundadores excepcionales.
-                    </h1>
-                    <p className="type-content mt-5 max-w-[42ch] text-sm leading-relaxed text-white/72 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light md:text-base">
-                      Un espacio independiente para que la información fluya.
-                      Sólo para fundadores.
-                    </p>
-                  </div>
-                </div>
-                <div className="min-h-[34vh] overflow-hidden sm:min-h-[40vh] md:min-h-0">
-                  <HeroAteneoExport />
-                </div>
-              </div>
-
-              <div className="grid h-12 shrink-0 grid-cols-2 divide-x divide-white/20 border-t border-b border-white/20 md:grid-cols-4">
-                <div className="type-content flex items-center px-4 text-[10px] uppercase tracking-[0.16em] text-white/70 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-                  Solo fundadores
-                </div>
-                <div className="type-content flex items-center px-4 text-[10px] uppercase tracking-[0.16em] text-white/70 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-                  Comunidad privada
-                </div>
-                <div className="type-content hidden items-center px-4 text-[10px] uppercase tracking-[0.16em] text-white/70 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light md:flex">
-                  España
-                </div>
-                <div className="type-content hidden items-center px-4 text-[10px] uppercase tracking-[0.16em] text-white/70 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light md:flex">
-                  Alta densidad de talento
-                </div>
-              </div>
-            </div>
-          </section>
-
-          <section
-            id="por-que"
-            className="w-full border-b border-white/20 px-6 py-12 md:px-10 md:py-16"
-          >
-            <div className="grid gap-10 md:grid-cols-2 md:gap-14">
-              <div className="border-b border-white/20 pb-8 md:border-b-0 md:pb-0">
-                <p className="type-content text-[11px] uppercase tracking-[0.22em] text-white/45 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-                  Por qué
-                </p>
-                <h2 className="type-heading mt-4 max-w-[15ch] text-[clamp(2rem,3.8vw,3.5rem)] leading-[1.03] tracking-tight [font-family:Georgia,'Times_New_Roman',Times,serif]">
-                  La brillantez no nace del vacío.
-                </h2>
-              </div>
-
-              <div className="md:pt-1 md:pl-8 lg:pl-12">
-                <p className="type-content max-w-[64ch] text-[1.02rem] leading-relaxed text-white/68 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-                  Ateneo nace de un principio fundamental: el efecto
-                  multiplicador de un ecosistema es directamente proporcional al
-                  conocimiento compartido entre sus miembros. La etapas doradas
-                  de un movimiento son consecuencia de dar un espacio común a
-                  las mentes más brillantes. Queremos una nueva etapa dorada
-                  para el software español.
-                </p>
-
-                <button
-                  type="button"
-                  className="type-content group mt-8 inline-flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/70 transition-colors hover:text-white [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light"
-                >
-                  <span className="transition-transform duration-200 group-hover:translate-x-0.5">
-                    ↗
-                  </span>
-                  <span className="underline decoration-white/20 underline-offset-4 transition-colors group-hover:decoration-white/60">
-                    Leer carta fundacional
-                  </span>
-                </button>
-              </div>
-            </div>
-          </section>
-
-          <section
-            id="como"
-            className="w-full border-b border-white/20 px-6 py-16 md:px-10 md:py-24"
-          >
-            <div className="grid gap-10 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
-              <div>
-                <p className="type-content text-[11px] uppercase tracking-[0.22em] text-white/60 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-                  Cómo
-                </p>
-                <h2 className="mt-4 max-w-[16ch] text-4xl leading-[1.03] [font-family:Georgia,'Times_New_Roman',Times,serif] md:text-6xl">
-                  Fabricamos serendipia.
-                </h2>
-                <p className="type-content mt-6 max-w-[58ch] text-[1.02rem] leading-relaxed text-white/68 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-                  El ecosistema español está fragmentado. Ateneo busca
-                  concentrarlo en un espacio independiente, selectivo, y de
-                  confianza.
-                </p>
-              </div>
-
-              <div className="grid gap-4 md:pt-2">
-                <article className="border border-white/20 bg-white/[0.02] p-6">
-                  <p className="text-[10px] uppercase tracking-[0.16em] text-white/55 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-                    Independiente
-                  </p>
-                  <p className="mt-3 text-sm leading-relaxed text-white/75 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-                    Ateneo no depende de ninguna institución. No es de ningún
-                    fondo, empresa o fundación. Es autogestionado.
-                  </p>
-                </article>
-
-                <article className="border border-white/20 bg-white/[0.02] p-6">
-                  <p className="text-[10px] uppercase tracking-[0.16em] text-white/55 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-                    Altamente selectivo
-                  </p>
-                  <p className="mt-3 text-sm leading-relaxed text-white/75 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-                    Sólo para fundadores. No VCs, empleados ni perfiles
-                    ejecutivos.
-                  </p>
-                </article>
-
-                <article className="border border-white/20 bg-white/[0.02] p-6">
-                  <p className="text-[10px] uppercase tracking-[0.16em] text-white/55 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-                    Confidencial
-                  </p>
-                  <p className="mt-3 text-sm leading-relaxed text-white/75 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-                    Es un entorno de alta confianza. Lo que se habla en el foro,
-                    se queda en el foro.
-                  </p>
-                </article>
-              </div>
-            </div>
-          </section>
-
-          <section id="que" className="w-full px-6 py-14 md:px-10 md:py-16">
-            <div>
-              <p className="type-content text-[11px] uppercase tracking-[0.22em] text-white/60 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-                Qué
-              </p>
-              <h2 className="type-heading mt-4 max-w-[24ch] text-[clamp(2rem,3.8vw,3.5rem)] leading-[1.03] [font-family:Georgia,'Times_New_Roman',Times,serif]">
-                Un canal para compartir las claves para crecer
+              <h2 className="type-heading mt-4 max-w-[15ch] text-[clamp(2rem,3.8vw,3.5rem)] leading-[1.03] tracking-tight [font-family:Georgia,'Times_New_Roman',Times,serif]">
+                La brillantez no nace del vacío.
               </h2>
             </div>
 
-            <div className="mt-10 md:border-x md:border-white/20">
-              <div className="grid md:grid-cols-3 md:divide-x md:divide-white/20">
-                {QUE_ITEMS.map((item, index) => (
-                  <article
-                    key={item.title}
-                    className="px-0 py-6 md:px-8 md:py-8 lg:px-10"
-                  >
-                    <div className="mt-4 h-[220px] md:h-[240px]">
-                      {index === 0 ? (
-                        <AsciiExportCanvas
-                          artifact={conocimientoArtifact as AsciiExport}
-                          className="h-full w-full"
-                          fit="contain"
-                          trimWhitespace
-                        />
-                      ) : index === 1 ? (
-                        <AsciiExportCanvas
-                          artifact={consejoArtifact as AsciiExport}
-                          className="h-full w-full"
-                          fit="contain"
-                          trimWhitespace
-                        />
-                      ) : index === 2 ? (
-                        <AsciiExportCanvas
-                          artifact={recomendacionesArtifact as AsciiExport}
-                          className="h-full w-full"
-                          fit="contain"
-                          trimWhitespace
-                        />
-                      ) : (
-                        <PlaceholderIllustration variant={index} />
-                      )}
-                    </div>
+            <div className="md:pt-1 md:pl-8 lg:pl-12">
+              <p className="type-content max-w-[64ch] text-[1.02rem] leading-relaxed text-white/68 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+                Ateneo nace de un principio fundamental: el efecto multiplicador
+                de un ecosistema es directamente proporcional al conocimiento
+                compartido entre sus miembros. La etapas doradas de un
+                movimiento son consecuencia de dar un espacio común a las mentes
+                más brillantes. Queremos una nueva etapa dorada para el software
+                español.
+              </p>
 
-                    <p className="type-content mt-6 text-[11px] uppercase tracking-[0.2em] text-white/72 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-                      {item.title}
-                    </p>
-                    <p className="type-content mt-3 max-w-[44ch] text-sm leading-relaxed text-white/65 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-                      {item.copy}
-                    </p>
-                  </article>
-                ))}
-              </div>
+              <button
+                type="button"
+                className="type-content group mt-8 inline-flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/70 transition-colors hover:text-white [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light"
+              >
+                <span className="transition-transform duration-200 group-hover:translate-x-0.5">
+                  ↗
+                </span>
+                <span className="underline decoration-white/20 underline-offset-4 transition-colors group-hover:decoration-white/60">
+                  Leer carta fundacional
+                </span>
+              </button>
             </div>
-          </section>
+          </div>
+        </section>
 
-          <section
-            id="requisitos"
-            className="w-full border-b border-white/20 px-6 py-16 md:px-10 md:py-20"
-          >
-            <div className="grid gap-10 md:grid-cols-[minmax(0,1.2fr)_minmax(0,1fr)]">
-              <div>
-                <p className="text-[11px] uppercase tracking-[0.22em] text-white/60 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-                  Requisitos de acceso
+        <section
+          id="como"
+          className="w-full border-b border-white/20 px-6 py-16 md:px-10 md:py-24"
+        >
+          <div className="grid gap-10 md:grid-cols-[minmax(0,1.15fr)_minmax(0,1fr)]">
+            <div>
+              <p className="type-content text-[11px] uppercase tracking-[0.22em] text-white/60 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+                Cómo
+              </p>
+              <h2 className="mt-4 max-w-[16ch] text-4xl leading-[1.03] [font-family:Georgia,'Times_New_Roman',Times,serif] md:text-6xl">
+                Fabricamos serendipia.
+              </h2>
+              <p className="type-content mt-6 max-w-[58ch] text-[1.02rem] leading-relaxed text-white/68 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+                El ecosistema español está fragmentado. Ateneo busca
+                concentrarlo en un espacio independiente, selectivo, y de
+                confianza.
+              </p>
+            </div>
+
+            <div className="grid gap-4 md:pt-2">
+              <article className="border border-white/20 bg-white/[0.02] p-6">
+                <p className="text-[10px] uppercase tracking-[0.16em] text-white/55 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+                  Independiente
                 </p>
-                <h2 className="mt-4 max-w-[17ch] text-4xl leading-[1.05] [font-family:Georgia,'Times_New_Roman',Times,serif] md:text-5xl">
-                  Densidad de talento con reglas claras
-                </h2>
-              </div>
-              <div className="grid gap-3">
-                {REQUISITOS.map((item) => (
-                  <div
-                    key={item}
-                    className="border border-white/20 bg-white/[0.02] px-4 py-3 text-sm leading-relaxed text-white/75 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light"
-                  >
-                    {item}
-                  </div>
-                ))}
-              </div>
-            </div>
-          </section>
+                <p className="mt-3 text-sm leading-relaxed text-white/75 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+                  Ateneo no depende de ninguna institución. No es de ningún
+                  fondo, empresa o fundación. Es autogestionado.
+                </p>
+              </article>
 
-          <section className="w-full px-6 py-16 md:px-10 md:py-20">
-            <div className="grid gap-4 md:grid-cols-3">
-              {PROCESO.map((item) => (
+              <article className="border border-white/20 bg-white/[0.02] p-6">
+                <p className="text-[10px] uppercase tracking-[0.16em] text-white/55 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+                  Altamente selectivo
+                </p>
+                <p className="mt-3 text-sm leading-relaxed text-white/75 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+                  Sólo para fundadores. No VCs, empleados ni perfiles
+                  ejecutivos.
+                </p>
+              </article>
+
+              <article className="border border-white/20 bg-white/[0.02] p-6">
+                <p className="text-[10px] uppercase tracking-[0.16em] text-white/55 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+                  Confidencial
+                </p>
+                <p className="mt-3 text-sm leading-relaxed text-white/75 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+                  Es un entorno de alta confianza. Lo que se habla en el foro,
+                  se queda en el foro.
+                </p>
+              </article>
+            </div>
+          </div>
+        </section>
+
+        <section
+          id="que"
+          className="relative w-full px-6 py-14 pb-32 md:px-10 md:py-16 md:pb-36"
+        >
+          <div>
+            <p className="type-content text-[11px] uppercase tracking-[0.22em] text-white/60 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+              Qué
+            </p>
+            <h2 className="type-heading mt-4 max-w-[24ch] text-[clamp(2rem,3.8vw,3.5rem)] leading-[1.03] [font-family:Georgia,'Times_New_Roman',Times,serif]">
+              Un canal para compartir las claves para crecer
+            </h2>
+          </div>
+
+          <div className="mt-10 md:border-x md:border-white/20">
+            <div className="grid md:grid-cols-3 md:divide-x md:divide-white/20">
+              {QUE_ITEMS.map((item, index) => (
                 <article
-                  key={item.step}
-                  className="border border-white/20 bg-white/[0.02] p-5 md:p-6"
+                  key={item.title}
+                  className="px-0 py-6 md:px-8 md:py-8 lg:px-10"
                 >
-                  <p className="text-[10px] uppercase tracking-[0.2em] text-white/55 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-                    Paso {item.step}
-                  </p>
-                  <h3 className="mt-3 text-xl [font-family:Georgia,'Times_New_Roman',Times,serif]">
+                  <div className="mt-4 h-[220px] md:h-[240px]">
+                    {index === 0 ? (
+                      <AsciiExportCanvas
+                        artifact={conocimientoArtifact as AsciiExport}
+                        className="h-full w-full"
+                        fit="contain"
+                        trimWhitespace
+                      />
+                    ) : index === 1 ? (
+                      <AsciiExportCanvas
+                        artifact={consejoArtifact as AsciiExport}
+                        className="h-full w-full"
+                        fit="contain"
+                        trimWhitespace
+                      />
+                    ) : index === 2 ? (
+                      <AsciiExportCanvas
+                        artifact={recomendacionesArtifact as AsciiExport}
+                        className="h-full w-full"
+                        fit="contain"
+                        trimWhitespace
+                      />
+                    ) : (
+                      <PlaceholderIllustration variant={index} />
+                    )}
+                  </div>
+
+                  <p className="type-content mt-6 text-[11px] uppercase tracking-[0.2em] text-white/72 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
                     {item.title}
-                  </h3>
-                  <p className="mt-3 text-sm leading-relaxed text-white/75 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+                  </p>
+                  <p className="type-content mt-3 max-w-[44ch] text-sm leading-relaxed text-white/65 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
                     {item.copy}
                   </p>
                 </article>
               ))}
             </div>
+          </div>
+          <PersistentJoinCta />
+        </section>
 
-            <div className="mt-10 flex justify-end">
+        <section className="w-full px-6 py-16 md:px-10 md:py-20">
+          <div className="grid gap-4 md:grid-cols-3">
+            {PROCESO.map((item) => (
+              <article
+                key={item.step}
+                className="border border-white/20 bg-white/[0.02] p-5 md:p-6"
+              >
+                <p className="text-[10px] uppercase tracking-[0.2em] text-white/55 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+                  Paso {item.step}
+                </p>
+                <h3 className="mt-3 text-xl [font-family:Georgia,'Times_New_Roman',Times,serif]">
+                  {item.title}
+                </h3>
+                <p className="mt-3 text-sm leading-relaxed text-white/75 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+                  {item.copy}
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+
+          <footer className="w-full border-t border-white/20 px-6 py-10 md:px-10 md:py-14">
+          <div className="grid gap-4 md:grid-cols-3 md:items-end">
+            <p className="type-content text-[10px] uppercase tracking-[0.18em] text-white/65 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+              Ateneo
+            </p>
+            <p className="type-content text-[10px] uppercase tracking-[0.16em] text-white/45 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light md:text-center">
+              Comunidad privada de fundadores en España
+            </p>
+            <div className="md:text-right">
               <a
                 href="/apply"
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex h-11 items-center border border-white px-5 text-xs uppercase tracking-[0.18em] [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light transition-colors hover:bg-white hover:text-black"
+                className="type-content inline-flex h-9 items-center border border-white/35 px-4 text-[10px] uppercase tracking-[0.16em] text-white/85 transition-colors hover:border-white hover:bg-white hover:text-black [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light"
               >
-                Aplicar ahora
+                Únete al foro
               </a>
             </div>
-          </section>
-        </div>
-      </main>
-    </TypographyExplorer>
+          </div>
+        </footer>
+      </div>
+    </main>
   );
 }

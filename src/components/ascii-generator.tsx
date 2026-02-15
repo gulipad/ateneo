@@ -18,7 +18,7 @@ const MONO_STACK =
   '"Geist Mono","SFMono-Regular",Menlo,Monaco,Consolas,"Liberation Mono",monospace';
 const CHAR_WIDTH_FACTOR = 0.62;
 const LINE_HEIGHT_FACTOR = 1.2;
-const CHAR_ASPECT = 0.56;
+const CHAR_ASPECT = CHAR_WIDTH_FACTOR / LINE_HEIGHT_FACTOR;
 const PREVIEW_PAD_X = 12;
 const PREVIEW_PAD_Y = 12;
 
