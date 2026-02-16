@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import Image from "next/image";
 import { useEffect, useMemo, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -334,28 +334,15 @@ export default function ApplyPage() {
     <main className="h-[100dvh] overflow-hidden bg-black text-white">
       <div className="mx-auto flex h-full w-full flex-col 2xl:max-w-[1440px] 2xl:border-x 2xl:border-white/20">
         <header className="h-16 border-y border-white/20">
-          <nav className="flex h-full items-center justify-between px-6 md:px-10">
-            <p className="text-xs uppercase tracking-[0.22em] [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
-              Ateneo
-            </p>
-            <div className="hidden gap-8 text-xs uppercase tracking-[0.14em] [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] md:flex">
-              <Link
-                href="/ascii"
-                className="opacity-80 transition-opacity hover:opacity-100"
-              >
-                Laboratorio ASCII
-              </Link>
-              <Link
-                href="/"
-                className="opacity-80 transition-opacity hover:opacity-100"
-              >
-                Inicio
-              </Link>
-              <Link href="/apply" className="opacity-100">
-                Solicitud
-              </Link>
-              <span className="opacity-80">Archivo</span>
-            </div>
+          <nav className="flex h-full items-center px-6 md:px-10">
+            <Image
+              src="/ateneo.svg"
+              alt="Ateneo"
+              width={188}
+              height={30}
+              priority
+              className="h-7 w-auto md:h-8"
+            />
           </nav>
         </header>
 
