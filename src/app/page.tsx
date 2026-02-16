@@ -1,8 +1,10 @@
 import { HeroAteneoExport } from "@/components/hero-ateneo-export";
+import { HeroLogoRotator } from "@/components/hero-logo-rotator";
 import { AsciiExportCanvas } from "@/components/ascii-export-canvas";
 import { PersistentJoinCta } from "@/components/persistent-join-cta";
 import { SiteModalController } from "@/components/site-modal-controller";
 import Image from "next/image";
+import Link from "next/link";
 import type { AsciiExport } from "@/lib/ascii-export";
 import conocimientoArtifact from "@/data/conocimiento-export.json";
 import consejoArtifact from "@/data/consejo-export.json";
@@ -96,14 +98,16 @@ export default function Page() {
       <div className="mx-auto w-full 2xl:max-w-[1440px] 2xl:border-x 2xl:border-white/20">
         <header className="h-16 border-y border-white/20">
           <nav className="flex h-full items-center justify-between px-6 md:px-10">
-            <Image
-              src="/ateneo.svg"
-              alt="Ateneo"
-              width={188}
-              height={30}
-              priority
-              className="h-7 w-auto md:h-8"
-            />
+            <Link href="/" aria-label="Ir a inicio">
+              <Image
+                src="/ateneo.svg"
+                alt="Ateneo"
+                width={188}
+                height={30}
+                priority
+                className="h-7 w-auto md:h-8"
+              />
+            </Link>
             <div className="type-content flex items-center gap-4 text-xs uppercase tracking-[0.14em] [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
               <a
                 href="/apply"
@@ -137,20 +141,7 @@ export default function Page() {
               </div>
             </div>
 
-            <div className="grid h-12 shrink-0 grid-cols-2 divide-x divide-white/20 border-t border-b border-white/20 md:grid-cols-4">
-              <div className="type-content flex items-center px-4 text-[10px] uppercase tracking-[0.16em] text-white/70 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-                Solo fundadores
-              </div>
-              <div className="type-content flex items-center px-4 text-[10px] uppercase tracking-[0.16em] text-white/70 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-                Comunidad privada
-              </div>
-              <div className="type-content hidden items-center px-4 text-[10px] uppercase tracking-[0.16em] text-white/70 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light md:flex">
-                España
-              </div>
-              <div className="type-content hidden items-center px-4 text-[10px] uppercase tracking-[0.16em] text-white/70 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light md:flex">
-                Alta densidad de talento
-              </div>
-            </div>
+            <HeroLogoRotator />
           </div>
         </section>
 
@@ -348,9 +339,15 @@ export default function Page() {
 
         <footer className="w-full border-t border-white/20 px-6 py-10 md:px-10 md:py-14">
           <div className="grid gap-4 md:grid-cols-3 md:items-end">
-            <p className="type-content text-[10px] uppercase tracking-[0.18em] text-white/65 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-              Ateneo
-            </p>
+            <Link href="/" aria-label="Ir a inicio" className="inline-flex">
+              <Image
+                src="/ateneo.svg"
+                alt="Ateneo"
+                width={188}
+                height={30}
+                className="h-6 w-auto opacity-85 transition-opacity hover:opacity-100"
+              />
+            </Link>
             <p className="type-content text-[10px] uppercase tracking-[0.16em] text-white/45 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light md:text-center">
               Comunidad privada de fundadores en España
             </p>

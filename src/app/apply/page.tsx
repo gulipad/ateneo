@@ -1,6 +1,7 @@
 "use client";
 
 import Image from "next/image";
+import Link from "next/link";
 import {
   useEffect,
   useMemo,
@@ -491,14 +492,16 @@ export default function ApplyPage() {
       <div className="mx-auto flex h-full w-full flex-col 2xl:max-w-[1440px] 2xl:border-x 2xl:border-white/20">
         <header className="h-16 border-y border-white/20">
           <nav className="flex h-full items-center px-6 md:px-10">
-            <Image
-              src="/ateneo.svg"
-              alt="Ateneo"
-              width={188}
-              height={30}
-              priority
-              className="h-7 w-auto md:h-8"
-            />
+            <Link href="/" aria-label="Ir a inicio">
+              <Image
+                src="/ateneo.svg"
+                alt="Ateneo"
+                width={188}
+                height={30}
+                priority
+                className="h-7 w-auto md:h-8"
+              />
+            </Link>
           </nav>
         </header>
 
