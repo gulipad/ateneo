@@ -1,7 +1,14 @@
 "use client";
 
 import Image from "next/image";
-import { useEffect, useMemo, useState, useTransition } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+  useTransition,
+  type CSSProperties,
+  type PointerEvent as ReactPointerEvent,
+} from "react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { submitApplication } from "./actions";
@@ -185,11 +192,151 @@ function textInputClass(isInvalid: boolean) {
   );
 }
 
+function clampUnit(value: number) {
+  return Math.max(-1, Math.min(1, value));
+}
+
+type PreviewPointerState = { x: number; y: number; active: boolean };
+
+function ApplicationPreviewCard({
+  applicantName,
+  pointer,
+  values,
+}: {
+  applicantName: string;
+  pointer: PreviewPointerState;
+  values: FormValues;
+}) {
+  const rotationX = pointer.active ? pointer.y * -10 : 0;
+  const rotationY = pointer.active ? pointer.x * 13 : 0;
+  const translateX = pointer.active ? pointer.x * 4 : 0;
+  const translateY = pointer.active ? pointer.y * 3 : 0;
+  const translateZ = pointer.active ? 14 : 0;
+
+  const lightX = 52 + pointer.x * 28;
+  const lightY = 35 + pointer.y * 24;
+  const sweepX = 50 + pointer.x * 24;
+  const sweepY = 48 + pointer.y * 18;
+
+  const cardStyle: CSSProperties = {
+    transform: `rotateX(${rotationX}deg) rotateY(${rotationY}deg) translate3d(${translateX}px, ${translateY}px, ${translateZ}px)`,
+    transformStyle: "preserve-3d",
+    transition: pointer.active
+      ? "transform 80ms linear, box-shadow 120ms linear"
+      : "transform 520ms cubic-bezier(0.22, 1, 0.36, 1), box-shadow 520ms cubic-bezier(0.22, 1, 0.36, 1)",
+    boxShadow: pointer.active
+      ? `${pointer.x * -16}px ${22 + pointer.y * 12}px 56px rgba(0, 0, 0, 0.62), 0 0 0 1px rgba(255,255,255,0.18), inset 0 0 0 1px rgba(255,255,255,0.12)`
+      : "0 24px 52px rgba(0, 0, 0, 0.58), 0 0 0 1px rgba(255,255,255,0.12), inset 0 0 0 1px rgba(255,255,255,0.09)",
+  };
+
+  const highlightStyle: CSSProperties = {
+    background: `radial-gradient(circle at ${lightX}% ${lightY}%, rgba(255,255,255,0.28), rgba(255,255,255,0.11) 18%, rgba(255,255,255,0.03) 38%, transparent 62%)`,
+    opacity: pointer.active ? 0.9 : 0.55,
+    transition: pointer.active ? "opacity 90ms linear" : "opacity 280ms ease",
+  };
+
+  const sweepStyle: CSSProperties = {
+    background: `linear-gradient(120deg, transparent 24%, rgba(255,255,255,0.2) 46%, transparent 60%)`,
+    transform: `translate(${(sweepX - 50) * 0.75}px, ${(sweepY - 50) * 0.4}px)`,
+    opacity: pointer.active ? 0.35 : 0.2,
+    transition: pointer.active
+      ? "transform 90ms linear, opacity 90ms linear"
+      : "transform 360ms ease, opacity 280ms ease",
+    mixBlendMode: "screen",
+  };
+
+  const emailValue = values.email.trim() || "tu@email.com";
+  const phoneValue =
+    [getDialFromCountry(values.telefonoPais), values.telefono.trim()]
+      .filter(Boolean)
+      .join(" ") || "+34 600 000 000";
+  const linkedinValue = values.linkedin.trim() || "linkedin.com/in/usuario";
+  const roleValue = values.rol || "Rol";
+  const titleValue = values.titulo.trim() || "Título";
+  const websiteValue =
+    values.web.trim().replace(/^https?:\/\//i, "") || "empresa.com";
+
+  return (
+    <div className="w-full max-w-[470px] [perspective:1400px]">
+      <div
+        className="relative aspect-[1.58/1] overflow-hidden rounded-[18px] border border-white/20 bg-[#050a12] px-6 py-5"
+        style={cardStyle}
+      >
+        <div className="pointer-events-none absolute inset-0 opacity-65" style={highlightStyle} />
+        <div className="pointer-events-none absolute inset-0 opacity-35" style={sweepStyle} />
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(120%_100%_at_0%_0%,rgba(120,150,200,0.12),transparent_54%),radial-gradient(120%_100%_at_100%_100%,rgba(65,88,128,0.14),transparent_58%)]" />
+        <div className="pointer-events-none absolute inset-0 opacity-30 [background:repeating-linear-gradient(118deg,rgba(255,255,255,0.08)_0px,rgba(255,255,255,0.08)_1px,transparent_1px,transparent_5px)]" />
+        <div className="pointer-events-none absolute inset-0 rounded-[18px] border border-white/14" />
+
+        <div
+          className="relative z-10 flex h-full flex-col"
+          style={{ transform: "translateZ(32px)" }}
+        >
+          <div className="flex items-center justify-between text-[10px] uppercase tracking-[0.16em] text-white/45 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
+            <span>ID APL-204</span>
+            <span>{roleValue}</span>
+          </div>
+
+          <div className="mt-4">
+            <p className="text-[clamp(1.35rem,2vw,1.95rem)] leading-[1.05] [font-family:Georgia,'Times_New_Roman',Times,serif]">
+              {applicantName}
+            </p>
+            <p className="mt-2 text-[10px] uppercase tracking-[0.16em] text-white/56 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
+              {titleValue}
+            </p>
+          </div>
+
+          <div className="mt-5 grid grid-cols-2 gap-x-4 gap-y-2">
+            <div className="min-w-0">
+              <p className="text-[9px] uppercase tracking-[0.14em] text-white/45 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
+                Email
+              </p>
+              <p className="truncate text-[11px] text-white/82 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
+                {emailValue}
+              </p>
+            </div>
+            <div className="min-w-0">
+              <p className="text-[9px] uppercase tracking-[0.14em] text-white/45 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
+                Teléfono
+              </p>
+              <p className="truncate text-[11px] text-white/82 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
+                {phoneValue}
+              </p>
+            </div>
+            <div className="min-w-0">
+              <p className="text-[9px] uppercase tracking-[0.14em] text-white/45 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
+                LinkedIn
+              </p>
+              <p className="truncate text-[11px] text-white/82 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
+                {linkedinValue}
+              </p>
+            </div>
+          </div>
+
+          <div className="mt-auto border-t border-white/20 pt-3">
+            <p className="text-[9px] uppercase tracking-[0.14em] text-white/45 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
+              Web
+            </p>
+            <p className="truncate text-[11px] text-white/86 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
+              {websiteValue}
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function ApplyPage() {
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const [values, setValues] = useState<FormValues>(INITIAL_VALUES);
   const [investors, setInvestors] = useState<string[]>([]);
+  const [previewPointer, setPreviewPointer] = useState<PreviewPointerState>({
+    x: 0,
+    y: 0,
+    active: false,
+  });
   const [investorsResetToken, setInvestorsResetToken] = useState<number | undefined>(
     undefined,
   );
@@ -209,7 +356,6 @@ export default function ApplyPage() {
     if (!values.email.trim()) missing.push("Email");
     if (!values.telefono.trim()) missing.push("Teléfono");
     if (!values.linkedin.trim()) missing.push("LinkedIn URL");
-    if (!values.twitter.trim()) missing.push("Twitter @");
     if (!values.rol.trim()) missing.push("Rol");
     if (!values.titulo.trim()) missing.push("Título");
     if (!values.web.trim()) missing.push("Web");
@@ -330,6 +476,16 @@ export default function ApplyPage() {
     });
   };
 
+  const onPreviewPointerMove = (event: ReactPointerEvent<HTMLElement>) => {
+    const rect = event.currentTarget.getBoundingClientRect();
+    const x = ((event.clientX - rect.left) / rect.width) * 2 - 1;
+    const y = ((event.clientY - rect.top) / rect.height) * 2 - 1;
+    setPreviewPointer({ x: clampUnit(x), y: clampUnit(y), active: true });
+  };
+
+  const onPreviewPointerLeave = () =>
+    setPreviewPointer({ x: 0, y: 0, active: false });
+
   return (
     <main className="h-[100dvh] overflow-hidden bg-black text-white">
       <div className="mx-auto flex h-full w-full flex-col 2xl:max-w-[1440px] 2xl:border-x 2xl:border-white/20">
@@ -435,10 +591,9 @@ export default function ApplyPage() {
                       />
                     </label>
                     <label className="grid gap-2">
-                      <FieldLabel>Twitter @</FieldLabel>
+                      <FieldLabel optional>Twitter @</FieldLabel>
                       <input
                         type="text"
-                        required
                         value={values.twitter}
                         onChange={(event) =>
                           updateField("twitter", event.target.value)
@@ -623,27 +778,16 @@ export default function ApplyPage() {
             </div>
           </div>
 
-          <aside className="hidden min-h-0 items-center justify-center border-l border-white/20 p-8 md:flex md:p-10">
-            <div className="w-full max-w-[440px] border border-white/20 bg-white/[0.02] p-6">
-              <p className="text-[10px] uppercase tracking-[0.16em] text-white/60 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
-                Vista previa
-              </p>
-              <div className="mt-4 border border-white/20 bg-black/60 p-6">
-                <p className="text-[11px] uppercase tracking-[0.14em] text-white/65 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
-                  Solicitud Ateneo
-                </p>
-                <p className="mt-10 text-2xl [font-family:Georgia,'Times_New_Roman',Times,serif]">
-                  {applicantName}
-                </p>
-                <p className="mt-2 text-xs uppercase tracking-[0.16em] text-white/55 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
-                  Tarjeta de aplicación
-                </p>
-                <div className="mt-8 grid grid-cols-2 gap-3 text-[10px] uppercase tracking-[0.14em] text-white/55 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
-                  <span>ID APL-204</span>
-                  <span className="text-right">SEVILLA</span>
-                </div>
-              </div>
-            </div>
+          <aside
+            className="hidden min-h-0 items-center justify-center border-l border-white/20 p-8 md:flex md:p-10"
+            onPointerMove={onPreviewPointerMove}
+            onPointerLeave={onPreviewPointerLeave}
+          >
+            <ApplicationPreviewCard
+              applicantName={applicantName}
+              pointer={previewPointer}
+              values={values}
+            />
           </aside>
         </section>
       </div>

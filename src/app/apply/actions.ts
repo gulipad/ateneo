@@ -51,7 +51,7 @@ type SubmissionPayload = {
       full: string;
     };
     linkedin: string;
-    twitter: string;
+    twitter: string | null;
     rol: string;
     titulo: string;
   };
@@ -79,7 +79,7 @@ type ValidSubmissionPayload = {
       full: string;
     };
     linkedin: string;
-    twitter: string;
+    twitter: string | null;
     rol: string;
     titulo: string;
   };
@@ -176,7 +176,7 @@ function validateAndNormalize(
     return { valid: false, error: "Teléfono inválido." };
   if (!LINKEDIN_PATTERN.test(linkedin))
     return { valid: false, error: "LinkedIn inválido." };
-  if (!TWITTER_PATTERN.test(twitter))
+  if (twitter && !TWITTER_PATTERN.test(twitter))
     return { valid: false, error: "Twitter inválido." };
   if (!OPTIONS_ROL.has(rol))
     return { valid: false, error: "Selecciona un rol." };
@@ -216,7 +216,7 @@ function validateAndNormalize(
           full: [dialCode, localNumber].join(" "),
         },
         linkedin: normalizeLinkedIn(linkedin),
-        twitter,
+        twitter: twitter || null,
         rol,
         titulo,
       },
