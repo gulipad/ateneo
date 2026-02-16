@@ -16,6 +16,8 @@ const FALLBACK_LABELS = [
   "España",
   "Alta densidad de talento",
 ] as const;
+const SLOT_COUNT = 4;
+const FADE_DURATION_MS = 280;
 
 function shuffleArray<T>(items: T[]) {
   const copy = [...items];
@@ -24,6 +26,17 @@ function shuffleArray<T>(items: T[]) {
     [copy[i], copy[j]] = [copy[j], copy[i]];
   }
   return copy;
+}
+
+function getRandomDelayMs() {
+  return 3000 + Math.floor(Math.random() * 2001);
+}
+
+function getNextIndex(previousIndex: number, logosLength: number, slotIndex: number) {
+  if (logosLength <= 1) return previousIndex;
+  const maxStep = Math.max(1, logosLength - 1);
+  const randomStep = 1 + Math.floor(Math.random() * maxStep);
+  return (previousIndex + randomStep + slotIndex) % logosLength;
 }
 
 function RotatingLogoImage({
@@ -62,9 +75,73 @@ function RotatingLogoImage({
   );
 }
 
+function RotatingLogoSlot({
+  logos,
+  slotIndex,
+  fallbackLabel,
+}: {
+  logos: StartupLogo[];
+  slotIndex: number;
+  fallbackLabel: string;
+}) {
+  const [currentIndex, setCurrentIndex] = useState(() =>
+    logos.length ? slotIndex % logos.length : -1,
+  );
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    if (logos.length <= 1) return;
+
+    let rotateTimeoutId = 0;
+    let fadeTimeoutId = 0;
+    let active = true;
+
+    const schedule = () => {
+      rotateTimeoutId = window.setTimeout(() => {
+        if (!active) return;
+        setIsVisible(false);
+
+        fadeTimeoutId = window.setTimeout(() => {
+          if (!active) return;
+          setCurrentIndex((previousIndex) =>
+            getNextIndex(previousIndex, logos.length, slotIndex),
+          );
+          setIsVisible(true);
+          schedule();
+        }, FADE_DURATION_MS);
+      }, getRandomDelayMs() + slotIndex * 180);
+    };
+
+    schedule();
+    return () => {
+      active = false;
+      window.clearTimeout(rotateTimeoutId);
+      window.clearTimeout(fadeTimeoutId);
+    };
+  }, [logos, slotIndex]);
+
+  const logo = currentIndex >= 0 ? logos[currentIndex] ?? null : null;
+
+  return (
+    <div className="flex items-center justify-center px-3">
+      <div
+        className={`transition-opacity duration-300 ${isVisible ? "opacity-100" : "opacity-0"}`}
+      >
+        {logo ? (
+          <RotatingLogoImage key={logo.slug} logo={logo} />
+        ) : (
+          <span className="type-content text-[10px] uppercase tracking-[0.16em] text-white/70 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+            {fallbackLabel}
+          </span>
+        )}
+      </div>
+    </div>
+  );
+}
+
 export function HeroLogoRotator() {
   const [logos, setLogos] = useState<StartupLogo[]>([]);
-  const [offset, setOffset] = useState(0);
+  const logosKey = useMemo(() => logos.map((logo) => logo.slug).join("|"), [logos]);
 
   useEffect(() => {
     let isMounted = true;
@@ -103,50 +180,15 @@ export function HeroLogoRotator() {
     };
   }, []);
 
-  useEffect(() => {
-    if (logos.length <= 1) return;
-
-    let timeoutId = 0;
-    let active = true;
-
-    const schedule = () => {
-      const delayMs = 3000 + Math.floor(Math.random() * 2001);
-      timeoutId = window.setTimeout(() => {
-        if (!active) return;
-        setOffset((previous) => (previous + 1) % logos.length);
-        schedule();
-      }, delayMs);
-    };
-
-    schedule();
-    return () => {
-      active = false;
-      window.clearTimeout(timeoutId);
-    };
-  }, [logos]);
-
-  const slots = useMemo(() => {
-    if (!logos.length) return new Array<StartupLogo | null>(4).fill(null);
-    return Array.from({ length: 4 }, (_, index) => {
-      return logos[(offset + index) % logos.length] ?? null;
-    });
-  }, [logos, offset]);
-
   return (
     <div className="grid h-12 shrink-0 grid-cols-2 divide-x divide-white/20 border-t border-b border-white/20 md:grid-cols-4">
-      {slots.map((logo, index) => (
-        <div
-          key={`${logo?.slug ?? "fallback"}-${index}`}
-          className="flex items-center justify-center px-3"
-        >
-          {logo ? (
-            <RotatingLogoImage logo={logo} />
-          ) : (
-            <span className="type-content text-[10px] uppercase tracking-[0.16em] text-white/70 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-              {FALLBACK_LABELS[index]}
-            </span>
-          )}
-        </div>
+      {Array.from({ length: SLOT_COUNT }, (_, index) => (
+        <RotatingLogoSlot
+          key={`slot-${index}-${logosKey}`}
+          logos={logos}
+          slotIndex={index}
+          fallbackLabel={FALLBACK_LABELS[index]}
+        />
       ))}
     </div>
   );
