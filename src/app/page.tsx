@@ -1,10 +1,13 @@
 import { HeroAteneoExport } from "@/components/hero-ateneo-export";
 import { AsciiExportCanvas } from "@/components/ascii-export-canvas";
 import { PersistentJoinCta } from "@/components/persistent-join-cta";
+import { SiteModalController } from "@/components/site-modal-controller";
+import Image from "next/image";
 import type { AsciiExport } from "@/lib/ascii-export";
 import conocimientoArtifact from "@/data/conocimiento-export.json";
 import consejoArtifact from "@/data/consejo-export.json";
 import recomendacionesArtifact from "@/data/recomendaciones-export.json";
+import fundadoresNetworkArtifact from "@/data/fundadores-network-export.json";
 
 const PROCESO = [
   {
@@ -38,6 +41,12 @@ const QUE_ITEMS = [
     copy: " Recibe recomendaciones sobre inversores, abogados, empleadosy otros aspectos clave para la vida de fundador.",
   },
 ] as const;
+
+const NETWORK_CANVAS_ASPECT_RATIO =
+  (fundadoresNetworkArtifact.dimensions.cols *
+    fundadoresNetworkArtifact.render.charWidthFactor) /
+  (fundadoresNetworkArtifact.dimensions.rows *
+    fundadoresNetworkArtifact.render.lineHeightFactor);
 
 function PlaceholderIllustration({ variant }: { variant: number }) {
   if (variant === 0) {
@@ -87,17 +96,23 @@ export default function Page() {
       <div className="mx-auto w-full 2xl:max-w-[1440px] 2xl:border-x 2xl:border-white/20">
         <header className="h-16 border-y border-white/20">
           <nav className="flex h-full items-center justify-between px-6 md:px-10">
-            <p className="type-content text-xs uppercase tracking-[0.22em] [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
-              Ateneo
-            </p>
+            <Image
+              src="/ateneo.svg"
+              alt="Ateneo"
+              width={188}
+              height={30}
+              priority
+              className="h-7 w-auto md:h-8"
+            />
             <div className="type-content flex items-center gap-4 text-xs uppercase tracking-[0.14em] [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
               <a
                 href="/apply"
                 target="_blank"
                 rel="noopener noreferrer"
+                data-modal-target="requisitos"
                 className="inline-flex h-9 items-center border border-white/40 px-4 text-[10px] tracking-[0.16em] transition-colors hover:border-white hover:bg-white hover:text-black md:h-10 md:px-5 md:text-[11px]"
               >
-                Únete al foro
+                Unete a Ateneo
               </a>
             </div>
           </nav>
@@ -112,12 +127,12 @@ export default function Page() {
                     El foro para fundadores excepcionales.
                   </h1>
                   <p className="type-content mt-5 max-w-[42ch] text-sm leading-relaxed text-white/72 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light md:text-base">
-                    Un espacio independiente para que la información fluya. Sólo
-                    para fundadores.
+                    Un espacio independiente para acelerar el ecosistema
+                    español. Sólo para fundadores.
                   </p>
                 </div>
               </div>
-              <div className="min-h-[34vh] overflow-hidden sm:min-h-[40vh] md:min-h-0">
+              <div className="min-h-[34vh] overflow-hidden p-2 sm:min-h-[40vh] sm:p-3 md:min-h-0 md:p-0">
                 <HeroAteneoExport />
               </div>
             </div>
@@ -165,6 +180,7 @@ export default function Page() {
 
               <button
                 type="button"
+                data-modal-target="carta"
                 className="type-content group mt-8 inline-flex items-center gap-2 text-xs uppercase tracking-[0.18em] text-white/70 transition-colors hover:text-white [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light"
               >
                 <span className="transition-transform duration-200 group-hover:translate-x-0.5">
@@ -251,13 +267,14 @@ export default function Page() {
                   key={item.title}
                   className="px-0 py-6 md:px-8 md:py-8 lg:px-10"
                 >
-                  <div className="mt-4 h-[220px] md:h-[240px]">
+                  <div className="mt-4 h-[180px] md:h-[200px]">
                     {index === 0 ? (
                       <AsciiExportCanvas
                         artifact={conocimientoArtifact as AsciiExport}
                         className="h-full w-full"
                         fit="contain"
                         trimWhitespace
+                        background="transparent"
                       />
                     ) : index === 1 ? (
                       <AsciiExportCanvas
@@ -265,6 +282,7 @@ export default function Page() {
                         className="h-full w-full"
                         fit="contain"
                         trimWhitespace
+                        background="transparent"
                       />
                     ) : index === 2 ? (
                       <AsciiExportCanvas
@@ -272,6 +290,7 @@ export default function Page() {
                         className="h-full w-full"
                         fit="contain"
                         trimWhitespace
+                        background="transparent"
                       />
                     ) : (
                       <PlaceholderIllustration variant={index} />
@@ -312,7 +331,22 @@ export default function Page() {
           </div>
         </section>
 
-          <footer className="w-full border-t border-white/20 px-6 py-10 md:px-10 md:py-14">
+        <section className="w-full px-6 pt-0 pb-8 text-center md:px-10 md:pt-1 md:pb-10">
+          <div
+            className="inline-block h-[340px] overflow-hidden md:h-[480px]"
+            style={{ aspectRatio: NETWORK_CANVAS_ASPECT_RATIO }}
+          >
+            <AsciiExportCanvas
+              artifact={fundadoresNetworkArtifact as AsciiExport}
+              className="h-full w-full"
+              fit="contain"
+              trimWhitespace
+              background="transparent"
+            />
+          </div>
+        </section>
+
+        <footer className="w-full border-t border-white/20 px-6 py-10 md:px-10 md:py-14">
           <div className="grid gap-4 md:grid-cols-3 md:items-end">
             <p className="type-content text-[10px] uppercase tracking-[0.18em] text-white/65 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
               Ateneo
@@ -325,14 +359,16 @@ export default function Page() {
                 href="/apply"
                 target="_blank"
                 rel="noopener noreferrer"
+                data-modal-target="requisitos"
                 className="type-content inline-flex h-9 items-center border border-white/35 px-4 text-[10px] uppercase tracking-[0.16em] text-white/85 transition-colors hover:border-white hover:bg-white hover:text-black [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light"
               >
-                Únete al foro
+                Unete a Ateneo
               </a>
             </div>
           </div>
         </footer>
       </div>
+      <SiteModalController />
     </main>
   );
 }

@@ -79,9 +79,10 @@ export function PersistentJoinCta() {
           href="/apply"
           target="_blank"
           rel="noopener noreferrer"
+          data-modal-target="requisitos"
           className="type-content inline-flex h-10 shrink-0 items-center border border-white/40 bg-black/25 px-4 text-[11px] uppercase tracking-[0.16em] text-white transition-colors hover:border-white hover:bg-white hover:text-black [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light"
         >
-          Únete al foro
+          Unete a Ateneo
         </a>
       </div>
     </div>
