@@ -84,7 +84,7 @@ function RotatingLogoImage({
     <img
       src={src}
       alt={logo.name}
-      className="max-h-7 w-auto max-w-[132px] object-contain opacity-75 transition-opacity duration-300 filter grayscale invert hover:opacity-100"
+      className="max-h-4 w-auto max-w-full object-contain opacity-75 transition-opacity duration-300 filter grayscale invert hover:opacity-100 md:max-h-7 md:max-w-[132px]"
       loading="lazy"
       onError={() => {
         if (!usedFallback && logo.fallbackLogoUrl) {
@@ -103,6 +103,7 @@ export function HeroLogoRotator() {
   const [slots, setSlots] = useState<SlotState[]>(() => createEmptySlots());
   const slotsRef = useRef<SlotState[]>(createEmptySlots());
   const reservedIndicesRef = useRef<Set<number>>(new Set());
+  const globalShiftInProgressRef = useRef(false);
 
   useEffect(() => {
     let isMounted = true;
@@ -128,11 +129,18 @@ export function HeroLogoRotator() {
             logoUrl: item.logoUrl ?? item.fallbackLogoUrl ?? null,
           }))
           .filter((item) => item.logoUrl || item.fallbackLogoUrl);
-        if (!valid.length) return;
+        if (!valid.length) {
+          setLogos([]);
+          setSlots(createEmptySlots());
+          reservedIndicesRef.current.clear();
+          globalShiftInProgressRef.current = false;
+          return;
+        }
         const shuffled = shuffleArray(valid);
         setLogos(shuffled);
         setSlots(createInitialSlots(shuffled.length));
         reservedIndicesRef.current.clear();
+        globalShiftInProgressRef.current = false;
       } catch (error) {
         console.error("[hero-logos] fetch failed", error);
       }
@@ -184,7 +192,69 @@ export function HeroLogoRotator() {
 
         const nextLogoIndex = pickRandom(candidates);
         if (nextLogoIndex === undefined) {
-          scheduleSlotRotation(slotIndex);
+          const activeSlotIndices = currentSnapshot
+            .map((slot, index) => ({ index, logoIndex: slot.logoIndex }))
+            .filter((entry) => entry.logoIndex >= 0)
+            .map((entry) => entry.index);
+
+          if (activeSlotIndices.length <= 1 || globalShiftInProgressRef.current) {
+            scheduleSlotRotation(slotIndex);
+            return;
+          }
+
+          globalShiftInProgressRef.current = true;
+          setSlots((previousSlots) => {
+            const updatedSlots = [...previousSlots];
+            for (const activeIndex of activeSlotIndices) {
+              const current = updatedSlots[activeIndex];
+              if (!current) continue;
+              updatedSlots[activeIndex] = {
+                ...current,
+                isVisible: false,
+              };
+            }
+            return updatedSlots;
+          });
+
+          const shiftTimeoutId = window.setTimeout(() => {
+            if (!active) return;
+
+            setSlots((previousSlots) => {
+              const updatedSlots = [...previousSlots];
+              const previousLogoBySlot = new Map<number, number>();
+              for (const activeIndex of activeSlotIndices) {
+                previousLogoBySlot.set(
+                  activeIndex,
+                  previousSlots[activeIndex]?.logoIndex ?? -1,
+                );
+              }
+
+              for (let i = 0; i < activeSlotIndices.length; i += 1) {
+                const targetSlotIndex = activeSlotIndices[i];
+                const sourceSlotIndex =
+                  activeSlotIndices[
+                    (i - 1 + activeSlotIndices.length) % activeSlotIndices.length
+                  ];
+                const nextIndex =
+                  previousLogoBySlot.get(sourceSlotIndex) ??
+                  previousSlots[targetSlotIndex]?.logoIndex ??
+                  -1;
+
+                updatedSlots[targetSlotIndex] = {
+                  logoIndex: nextIndex,
+                  isVisible: true,
+                };
+              }
+
+              return updatedSlots;
+            });
+
+            reservedIndices.clear();
+            globalShiftInProgressRef.current = false;
+            scheduleSlotRotation(slotIndex);
+          }, FADE_DURATION_MS);
+
+          timeoutIds.push(shiftTimeoutId);
           return;
         }
 
@@ -233,6 +303,7 @@ export function HeroLogoRotator() {
         window.clearTimeout(timeoutId);
       }
       reservedIndices.clear();
+      globalShiftInProgressRef.current = false;
     };
   }, [logos]);
 
@@ -247,9 +318,12 @@ export function HeroLogoRotator() {
   }, [logos, slots]);
 
   return (
-    <div className="grid h-12 shrink-0 grid-cols-2 divide-x divide-white/20 border-t border-b border-white/20 md:grid-cols-4">
+    <div className="grid h-12 shrink-0 grid-cols-4 divide-x divide-white/20 border-t border-b border-white/20">
       {renderedSlots.map((slot, index) => (
-        <div key={`slot-${index}`} className="flex items-center justify-center px-3">
+        <div
+          key={`slot-${index}`}
+          className="flex min-w-0 items-center justify-center overflow-hidden px-1.5 md:px-3"
+        >
           <div
             className={`transition-opacity duration-300 ${slot.isVisible ? "opacity-100" : "opacity-0"}`}
           >

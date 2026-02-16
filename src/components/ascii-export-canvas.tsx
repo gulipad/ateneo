@@ -67,7 +67,7 @@ export function AsciiExportCanvas({
 }: AsciiExportCanvasProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
-  const [viewport, setViewport] = useState({ width: 1200, height: 700 });
+  const [viewport, setViewport] = useState({ width: 1, height: 1 });
 
   const data = useMemo<AsciiExport | null>(() => {
     if (typeof artifact !== "string") return artifact;
@@ -102,9 +102,14 @@ export function AsciiExportCanvas({
     };
 
     applySize();
-    const observer = new ResizeObserver(applySize);
-    observer.observe(host);
-    return () => observer.disconnect();
+    if (typeof ResizeObserver !== "undefined") {
+      const observer = new ResizeObserver(applySize);
+      observer.observe(host);
+      return () => observer.disconnect();
+    }
+
+    window.addEventListener("resize", applySize);
+    return () => window.removeEventListener("resize", applySize);
   }, []);
 
   useEffect(() => {
@@ -319,8 +324,11 @@ export function AsciiExportCanvas({
   ]);
 
   return (
-    <div ref={hostRef} className={`h-full w-full ${className ?? ""}`}>
-      <canvas ref={canvasRef} className="block h-full w-full" />
+    <div
+      ref={hostRef}
+      className={`h-full w-full min-w-0 overflow-hidden ${className ?? ""}`}
+    >
+      <canvas ref={canvasRef} className="block h-full w-full max-w-full" />
       {parseError ? (
         <p className="px-3 py-2 text-[11px] text-red-300 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace]">
           {parseError}

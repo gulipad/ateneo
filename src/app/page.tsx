@@ -94,8 +94,8 @@ function PlaceholderIllustration({ variant }: { variant: number }) {
 
 export default function Page() {
   return (
-    <main className="min-h-screen bg-black text-white">
-      <div className="mx-auto w-full 2xl:max-w-[1440px] 2xl:border-x 2xl:border-white/20">
+    <main className="min-h-screen overflow-x-hidden bg-black text-white">
+      <div className="mx-auto w-full overflow-x-clip 2xl:max-w-[1440px] 2xl:border-x 2xl:border-white/20">
         <header className="h-16 border-y border-white/20">
           <nav className="flex h-full items-center justify-between px-6 md:px-10">
             <Link href="/" aria-label="Ir a inicio">
@@ -240,7 +240,7 @@ export default function Page() {
 
         <section
           id="que"
-          className="relative w-full px-6 py-14 pb-32 md:px-10 md:py-16 md:pb-36"
+          className="relative w-full overflow-x-hidden px-6 py-14 pb-32 md:px-10 md:py-16 md:pb-36"
         >
           <div>
             <p className="type-content text-[11px] uppercase tracking-[0.22em] text-white/60 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
@@ -256,9 +256,9 @@ export default function Page() {
               {QUE_ITEMS.map((item, index) => (
                 <article
                   key={item.title}
-                  className="px-0 py-6 md:px-8 md:py-8 lg:px-10"
+                  className="min-w-0 overflow-hidden px-0 py-6 md:px-8 md:py-8 lg:px-10"
                 >
-                  <div className="mt-4 h-[180px] md:h-[200px]">
+                  <div className="mt-4 h-[180px] overflow-hidden md:h-[200px]">
                     {index === 0 ? (
                       <AsciiExportCanvas
                         artifact={conocimientoArtifact as AsciiExport}

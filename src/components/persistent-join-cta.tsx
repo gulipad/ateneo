@@ -68,11 +68,11 @@ export function PersistentJoinCta() {
       aria-hidden={!isVisible}
     >
       <div
-        className={`${isVisible ? "pointer-events-auto" : "pointer-events-none"} mx-auto flex w-full max-w-[640px] items-center justify-between gap-4 border border-white/25 bg-white/[0.06] px-4 py-3 shadow-[0_18px_56px_rgba(0,0,0,0.52)] backdrop-blur-xl transition-all duration-300 md:px-5 ${
+        className={`${isVisible ? "pointer-events-auto" : "pointer-events-none"} mx-auto flex w-full max-w-[640px] flex-col items-stretch gap-3 border border-white/25 bg-white/[0.06] px-4 py-3 shadow-[0_18px_56px_rgba(0,0,0,0.52)] backdrop-blur-xl transition-all duration-300 sm:flex-row sm:items-center sm:justify-between sm:gap-4 md:px-5 ${
           isVisible ? "translate-y-0 opacity-100" : "translate-y-2 opacity-0"
         }`}
       >
-        <p className="type-content text-[10px] uppercase tracking-[0.16em] text-white/72 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light">
+        <p className="type-content text-center text-[10px] uppercase tracking-[0.16em] text-white/72 [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light sm:text-left">
           Comunidad privada para fundadores
         </p>
         <a
@@ -80,7 +80,7 @@ export function PersistentJoinCta() {
           target="_blank"
           rel="noopener noreferrer"
           data-modal-target="requisitos"
-          className="type-content inline-flex h-10 shrink-0 items-center border border-white/40 bg-black/25 px-4 text-[11px] uppercase tracking-[0.16em] text-white transition-colors hover:border-white hover:bg-white hover:text-black [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light"
+          className="type-content inline-flex h-10 w-full shrink-0 items-center justify-center border border-white/40 bg-black/25 px-4 text-[11px] uppercase tracking-[0.16em] text-white transition-colors hover:border-white hover:bg-white hover:text-black [font-family:'SFMono-Regular',Menlo,Monaco,Consolas,'Liberation_Mono',monospace] font-light sm:w-auto"
         >
           Unete a Ateneo
         </a>
