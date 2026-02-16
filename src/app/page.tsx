@@ -247,7 +247,7 @@ export default function Page() {
               Qué
             </p>
             <h2 className="type-heading mt-4 max-w-[24ch] text-[clamp(2rem,3.8vw,3.5rem)] leading-[1.03] [font-family:Georgia,'Times_New_Roman',Times,serif]">
-              Un canal para compartir las claves para crecer
+              Un canal privado para fundadores excepcionales.
             </h2>
           </div>
 
