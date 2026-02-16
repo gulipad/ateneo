@@ -17,6 +17,7 @@ type AsciiExportCanvasProps = {
   className?: string;
   fit?: "contain" | "cover";
   trimWhitespace?: boolean;
+  background?: "artifact" | "transparent" | string;
 };
 
 function trimAsciiLines(lines: string[]) {
@@ -62,6 +63,7 @@ export function AsciiExportCanvas({
   className,
   fit = "contain",
   trimWhitespace = false,
+  background = "artifact",
 }: AsciiExportCanvasProps) {
   const hostRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -148,8 +150,11 @@ export function AsciiExportCanvas({
 
       context.setTransform(dpr, 0, 0, dpr, 0, 0);
       context.clearRect(0, 0, width, height);
-      context.fillStyle = data.render.background;
-      context.fillRect(0, 0, width, height);
+      if (background !== "transparent") {
+        context.fillStyle =
+          background === "artifact" ? data.render.background : background;
+        context.fillRect(0, 0, width, height);
+      }
 
       const cols = trimWhitespace ? sourceCols : data.dimensions.cols || sourceCols;
       const rows = trimWhitespace ? sourceLines.length : data.dimensions.rows || sourceLines.length;
@@ -302,7 +307,16 @@ export function AsciiExportCanvas({
       host.removeEventListener("pointermove", onPointerMove);
       host.removeEventListener("pointerleave", onPointerLeave);
     };
-  }, [data, fit, sourceCols, sourceLines, trimWhitespace, viewport.height, viewport.width]);
+  }, [
+    background,
+    data,
+    fit,
+    sourceCols,
+    sourceLines,
+    trimWhitespace,
+    viewport.height,
+    viewport.width,
+  ]);
 
   return (
     <div ref={hostRef} className={`h-full w-full ${className ?? ""}`}>

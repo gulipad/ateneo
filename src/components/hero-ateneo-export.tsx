@@ -27,6 +27,7 @@ export function HeroAteneoExport() {
       artifact={artifact as AsciiExport}
       className="h-full w-full"
       fit={isMobile ? "cover" : "contain"}
+      background="transparent"
     />
   );
 }

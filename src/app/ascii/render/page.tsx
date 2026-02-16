@@ -71,7 +71,11 @@ export default function AsciiRenderPage() {
               <p>Vista previa</p>
               <p>Render en runtime sin imagen</p>
             </div>
-            <AsciiExportCanvas artifact={payload} className="min-h-0 overflow-hidden" />
+            <AsciiExportCanvas
+              artifact={payload}
+              className="min-h-0 overflow-hidden"
+              background="transparent"
+            />
           </div>
         </div>
       </section>
