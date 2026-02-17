@@ -1,6 +1,7 @@
 "use server";
 
 import { supabase } from "@/lib/supabase-server";
+import { notifyApplication } from "@/lib/notify-application";
 
 const NAME_PATTERN = /^[A-Za-zÁÉÍÓÚÜÑáéíóúüñ' -]{2,100}$/;
 const EMAIL_PATTERN = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
@@ -478,6 +479,10 @@ export async function submitApplication(
       error: inboxResult.error,
     };
   }
+
+  notifyApplication(validation.payload).catch((err) => {
+    console.error("[apply] notification email failed", err);
+  });
 
   return { success: true };
 }
