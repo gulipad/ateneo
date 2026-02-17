@@ -403,7 +403,7 @@ async function ensureInboxEvent(applicationId: RecordId): Promise<{
 }> {
   const existingEventResult = await supabase
     .from("inbox_events")
-    .select("id")
+    .select("event_id")
     .eq("event_type", "founder_forum_application")
     .eq("founder_forum_application_id", applicationId)
     .limit(1)
@@ -417,7 +417,7 @@ async function ensureInboxEvent(applicationId: RecordId): Promise<{
     };
   }
 
-  if (existingEventResult.data?.id != null) {
+  if (existingEventResult.data?.event_id != null) {
     return { ok: true };
   }
 
@@ -435,13 +435,13 @@ async function ensureInboxEvent(applicationId: RecordId): Promise<{
   // Retry lookup in case a concurrent request inserted the same event.
   const raceEventResult = await supabase
     .from("inbox_events")
-    .select("id")
+    .select("event_id")
     .eq("event_type", "founder_forum_application")
     .eq("founder_forum_application_id", applicationId)
     .limit(1)
     .maybeSingle();
 
-  if (!raceEventResult.error && raceEventResult.data?.id != null) {
+  if (!raceEventResult.error && raceEventResult.data?.event_id != null) {
     return { ok: true };
   }
 
