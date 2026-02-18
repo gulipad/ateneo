@@ -480,9 +480,11 @@ export async function submitApplication(
     };
   }
 
-  notifyApplication(validation.payload).catch((err) => {
+  try {
+    await notifyApplication(validation.payload);
+  } catch (err) {
     console.error("[apply] notification email failed", err);
-  });
+  }
 
   return { success: true };
 }
